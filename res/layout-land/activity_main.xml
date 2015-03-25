@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/main_game_wall_paper_land"
+    android:baselineAligned="false"
+    android:orientation="horizontal" >
+
+    <LinearLayout
+        android:id="@+id/game_area"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="50dp"
+        android:background="@drawable/gameborder"
+        android:orientation="vertical"
+        android:padding="2dp" >
+
+        <com.unimelb.breakout.WorldView
+            android:id="@+id/worldView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/trans_layer"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginLeft="50dp"
+        android:clickable="true"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/txt_ready"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="false"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="100dp"
+            android:layout_marginLeft="60dp"
+            android:text="@string/tip_ready"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/prompt_color" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="0dp"
+        android:padding="2dp" >
+
+        <TableLayout
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="100dp"
+            android:orientation="vertical"
+            android:padding="2dp" >
+
+            <TableRow
+                android:id="@+id/tableRow1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/lbl_score"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:gravity="center_vertical|start"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/lbl_score"
+                    android:textColor="@color/item_title" />
+
+                <TextView
+                    android:id="@+id/val_score"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:gravity="center_vertical|end"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:paddingRight="3dp"
+                    android:textColor="@color/item_title" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/lbl_next"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:gravity="center_vertical|start"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/lbl_next"
+                    android:textColor="@color/item_title" />
+
+                <TextView
+                    android:id="@+id/val_next"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:gravity="center_vertical|end"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:paddingRight="3dp"
+                    android:textColor="@color/item_title" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/lbl_rank"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:gravity="center_vertical|start"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/lbl_rank"
+                    android:textColor="@color/item_title" />
+
+                <TextView
+                    android:id="@+id/val_rank"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:gravity="center_vertical|end"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:paddingRight="3dp"
+                    android:textColor="@color/item_title" />
+            </TableRow>
+        </TableLayout>
+
+        <TableLayout
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="30dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="3dp"
+            android:layout_marginTop="10dp"
+            android:padding="2dp" >
+
+            <TableRow
+                android:id="@+id/tableRow4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/lbl_level"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:gravity="center_vertical|start"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/lbl_level"
+                    android:textColor="@color/item_title" />
+
+                <TextView
+                    android:id="@+id/val_level"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:gravity="center_vertical|end"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:paddingRight="3dp"
+                    android:textColor="@color/item_title" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/lbl_lives"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:gravity="center_vertical|start"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/lbl_lives"
+                    android:textColor="@color/item_title" />
+
+                <TextView
+                    android:id="@+id/val_lives"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:gravity="center_vertical|end"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:paddingRight="3dp"
+                    android:textColor="@color/item_title" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/lbl_player"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:gravity="center_vertical|start"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/lbl_player"
+                    android:textColor="@color/item_title" />
+
+                <TextView
+                    android:id="@+id/val_player"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:gravity="center_vertical|end"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:paddingRight="3dp"
+                    android:textColor="@color/item_title" />
+            </TableRow>
+        </TableLayout>
+    </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/pauseButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:contentDescription="@string/pause"
+    	android:background="@color/transparent"
+        android:onClick="clickPauseOrResume" />
+
+</RelativeLayout>

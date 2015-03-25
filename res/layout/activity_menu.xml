@@ -1,0 +1,101 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@drawable/menu_background"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/welcome"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="130dp"
+        android:gravity="center_horizontal"
+        android:text="@string/welcome"
+        android:textColor="@color/blue_brey"
+        android:textSize="20sp"
+        android:textStyle="italic|bold"
+        android:typeface="monospace" />
+    
+    <Button
+        android:id="@+id/newPlayerButton"
+        android:layout_width="200dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/custom_button"
+        android:onClick="clickNewPlayer"
+        android:text="@string/new_player" />
+
+    <Button
+        android:id="@+id/startNewGameButton"
+        android:layout_width="200dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/custom_button"
+        android:onClick="clickStartNewGame"
+        android:text="@string/start_new_game" />
+    
+    <Button
+        android:id="@+id/continueButton"
+        android:layout_width="200dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/custom_button"
+        android:onClick="clickContinue"
+        android:text="@string/menu_continue" />
+    
+    <Button
+        android:id="@+id/selectLevelButton"
+        android:layout_width="200dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/custom_button"
+        android:onClick="clickSelectLevel"
+        android:text="@string/select_level" />
+
+    <Button
+        android:id="@+id/updateButton"
+        android:layout_width="200dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/custom_button"
+        android:onClick="clickUpdate"
+        android:text="@string/update_level" />
+
+    <Button
+        android:id="@+id/LeaderBoardButton"
+        android:layout_width="200dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/custom_button"
+        android:onClick="clickHighScore"
+        android:text="@string/leader_board" />
+
+
+    <Button
+        android:id="@+id/helpButton"
+        android:layout_width="200dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/custom_button"
+        android:onClick="clickHelp"
+        android:text="@string/help" />
+
+    <Button
+        android:id="@+id/exitButton"
+        android:layout_width="200dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/custom_button"
+        android:onClick="clickExit"
+        android:text="@string/exit" />
+
+</LinearLayout>

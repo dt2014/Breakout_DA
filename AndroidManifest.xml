@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.unimelb.breakout"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="16" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/breakout"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+
+        <!-- this activity is we start the game -->
+        <activity
+            android:name="com.unimelb.breakout.MenuActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity 
+            android:name="com.unimelb.breakout.PlayerActivity"
+			android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
+        <activity 
+            android:name="com.unimelb.breakout.LoadLevelActivity"
+			android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
+         <activity 
+            android:name="com.unimelb.breakout.SelectLevelActivity"
+			android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
+        <!-- main activity we play games here -->
+        <activity android:name="com.unimelb.breakout.MainActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:screenOrientation="fullSensor" >
+        </activity>
+        <!-- we set the game's setting here -->
+        <activity android:name="com.unimelb.breakout.SettingActivity" >
+        </activity>
+        <activity android:name="com.unimelb.breakout.downLoadLevel" >
+        </activity>
+		<activity 
+		    android:name="com.unimelb.breakout.HelpDisplayActivity"
+			android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        </activity>
+        <activity 
+		    android:name="com.unimelb.breakout.HighScoreListActivity"
+			android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        </activity>
+        
+        <service
+            android:name=".BGM"
+            android:exported="true"
+            android:process=":remote" >
+        </service>
+    </application>
+
+</manifest>
