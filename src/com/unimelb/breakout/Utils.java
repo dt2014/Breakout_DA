@@ -16,6 +16,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -90,4 +92,22 @@ public final class Utils {
         }
         return nameInitials.toString().toUpperCase();
     }
+    
+    /* 27Mar_Daphne: temporary code for 'buildRecords' and 'saveRecords' */
+    @SuppressWarnings("unchecked")
+    public static final List<RuntimeData> buildRecords(String json) {
+        Log.i("Utils", json);
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<RuntimeData>>() {}.getType();
+        List<RuntimeData> records = (List<RuntimeData>) gson.fromJson(json, listType);
+        return records;
+    }
+    
+    public static final String saveRecords(List<RuntimeData> records) {
+        Gson gson = new Gson();
+        String json = gson.toJson(records);
+//        Log.i("Utils", json);
+        return json;
+    }
+    
 }

@@ -55,11 +55,12 @@ public class RetrieveHighScoreTask extends AsyncTask<RuntimeData, Void, List<Run
     @Override
 	protected List<RuntimeData> doInBackground(RuntimeData... params) {
 	    rData = params[0];
-	    List<RuntimeData> result = null;
+	    
+	    
+	    /* 27Mar_Daphne: Temporarily comment out code. Change requiring from Server to accessing local High Score List
+        List<RuntimeData> result = null;
         String url = "http://128.199.134.230/retrieveLeaderboard.php";
-        StringBuffer sb = new StringBuffer("");
         String json = null;
-        
 		try {
 			HttpClient client = new DefaultHttpClient();
 			HttpGet request = new HttpGet();
@@ -67,32 +68,24 @@ public class RetrieveHighScoreTask extends AsyncTask<RuntimeData, Void, List<Run
 			HttpResponse response = client.execute(request);
 			BufferedReader in = new BufferedReader(new InputStreamReader(response
 					.getEntity().getContent()));
-//			String line = "";
-//			while ((line = in.readLine()) != null) {
-//				sb.append(line);
-//				break;
-//			}
-
             json = in.readLine();
 			if (json != null) {
-
 //	            Log.d("json onRetrieve from server", json);
                 Gson gson = new Gson();
                 JsonObject jobj = gson.fromJson(json, JsonObject.class);
                 Type listType = new TypeToken<ArrayList<RuntimeData>>() {}.getType();
-
-                 result = Collections.synchronizedList((List<RuntimeData>)gson.fromJson(jobj.get("records"), listType));
-                 rData.setRecords(result);
-                 //Utils.insert(rData);
+                result = Collections.synchronizedList((List<RuntimeData>)gson.fromJson(jobj.get("records"), listType));
+                rData.setRecords(result);
+                //Utils.insert(rData);
              }
-			
 			in.close();
-
-//			return sb.toString();
 		} catch (Exception e) {
 			e.printStackTrace();
 //			return "Failed!" + e;
 		}
+		*/
+	    List<RuntimeData> result = rData.getRecords();
+		
 		return result;
 	}
 

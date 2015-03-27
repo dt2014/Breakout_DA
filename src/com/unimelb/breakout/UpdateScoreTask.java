@@ -13,6 +13,8 @@ package com.unimelb.breakout;
 
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -22,7 +24,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.AlertDialog.Builder;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -51,13 +55,45 @@ public class UpdateScoreTask extends AsyncTask<String, Integer, String> {
 	@Override
 	protected String doInBackground(String... urls) {
 		try {
+		    /* 27Mar_Daphne: Temporarily comment out code. Change requesting server to accessing local list.
 			String url = urls[0];
-
 			HttpClient client = new DefaultHttpClient();
 			HttpGet request = new HttpGet(url);
 			request.setURI(new URI(url));
 			HttpResponse response = client.execute(request);
-			//return "Your score is: "+" Congragulations! You have reach the highest score!";
+		    */
+		    /* 27Mar_Daphne: Temporarily Local High Score List*/
+		    RuntimeData highScoreEntry = new RuntimeData();
+		    highScoreEntry.setScore(Integer.valueOf(urls[0]).intValue());
+		    highScoreEntry.setName(urls[1]);
+		    List<RuntimeData> highScoreList = main.getrData().getRecords();
+		    if(highScoreList == null) {
+		        highScoreList = new ArrayList<RuntimeData>();
+		        highScoreList.add(highScoreEntry);
+		        RuntimeData fillingEntry = new RuntimeData();
+		        fillingEntry.setName("");
+		        fillingEntry.setScore(0);
+		        for(int i = 0; i < 9; i++) {
+		            highScoreList.add(fillingEntry);
+		        }
+		    } else {
+		        for(int i = 0; i < 10; i++) {
+	                if(highScoreEntry.getScore() > highScoreList.get(i).getScore()) {
+	                    highScoreList.add(i, highScoreEntry);
+	                    break;
+	                }
+	            }
+		        Log.i("Record size", String.valueOf(highScoreList.size()));
+	            if(highScoreList.size() > 10) {
+	                highScoreList.remove(10);
+	            }
+		    }
+		    main.getrData().setRecords(highScoreList);
+		    SharedPreferences sharedPref = main.getSharedPreferences(MenuActivity.PREF, Context.MODE_PRIVATE);
+	        SharedPreferences.Editor editor = sharedPref.edit();
+	        editor.putString("SAVED.RECORDS", Utils.saveRecords(highScoreList));
+	        editor.commit();
+		    
 			pg.dismiss();
 			return "ok";
 
@@ -77,10 +113,6 @@ public class UpdateScoreTask extends AsyncTask<String, Integer, String> {
 	    if (result.equalsIgnoreCase("ok")) {
 	        Log.i("updatescore", "ok");
 	        main.getrData().setUploaded(true);
-
-            //Intent intent = new Intent();
-            //intent.setClass(act, ShowLeaderBoardActivity.class);
-	        //main.startActivity(intent);
 	        main.getrData().setRecordShow(true);
 	        main.runOnUiThread(new Runnable() {
 	            public void run() {

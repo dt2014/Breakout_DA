@@ -15,7 +15,7 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -121,8 +121,8 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
         	}
 		}
 	}
-	
-	private void drawGame() {
+
+    private void drawGame() {
 	    mainActivity.showRuntimeData();
         Canvas canvas = null;
         Ball ball = rData.getBall();
@@ -242,44 +242,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
             drawGame();
         }
         Log.d(TAG,"surfaceCreated");
-        
-//		ball = new Ball(this, null, width, height);
-//		ball.setXSpeed(speed-5);
-//		ball.setYSpeed(speed);
-//		bar = new Bar(this, null, width,height);
-//		bricks = new Bricks(this);
-//		checkIfNoLevel();
-		//Here we can assign a string calling FromJSON to the following variable bricks,
-		//so that FromJSON should turn string to a object of type Bricks.
-		/**Fot testing fromJSON and toJSON
-		String map = bricks.ToJSON();
-		Log.i(TAG,map);
-		Bricks bricksNew = new Bricks(this);
-		bricksNew.FromJSON(map);
-		String mapNew = bricksNew.ToJSON();
-		Log.i(TAG,mapNew);
-		bricks = bricksNew;
-		**/
 	}
-/*
-	private void checkIfNoLevel() {
-		//if no level-1 create one.
-		String levelFileName = "Level-1.map";
-	    File levelFile = new File("/sdcard/Breakout/Maps/" + levelFileName);
-	    if(!levelFile.exists())
-	    {
-	    	try {
-	    	Bricks firstLevel = new Bricks(this,20);
-	    	String L1 = firstLevel.ToJSON();
-	    	FileOutputStream fos = new FileOutputStream(levelFile);
-			fos.write(L1.getBytes());
-			fos.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-	    }
-	    //end of create level-1
-	}*/
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
@@ -320,35 +283,22 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
         }
         editor.commit();
 	}
+	
     public void switchLevel(int level) {
-    	//this.level = level;
-//    	String path = Environment.getExternalStorageDirectory().getPath() + "Breakout/Maps/";
-        String levelFileName = "level."+ level +".map";
-    	String path = getContext().getFilesDir().getPath();
-	    File levelFile = new File(path + levelFileName);
-	    if(levelFile.exists()) {
-//	    	 switchExistLevel(levelFile);
+//      String levelFileName = "level."+ level +".map";
+//    	String path = getContext().getFilesDir().getPath();
+//	    File levelFile = new File(path + levelFileName);
+//	    if(levelFile.exists()) {
 	        mainActivity.runOnUiThread(new Runnable() {     
 	            public void run() {
 	                final LoadFilesTask task = new LoadFilesTask(mainActivity);
 	                task.execute(rData);
 	            }});
-//	        new Thread() {
-//          @Override
-//          public void run() {
-//              try {
-//                  task.get(5000, TimeUnit.MILLISECONDS);
-//              } catch (Exception e) {
-//                  task.cancel(true);
-//                  task.showError();
-//              }
-//          }
-//      }.start();
-	    }
+//	    }
 	    //else ask the user to download the new maps./
-	    else {  
-	    	switchNewDownLevel(levelFile);
-	    }
+//	    else {  
+//	    	switchNewDownLevel(levelFile);
+//	    }
     }
 
     private void switchNewDownLevel(File levelFile) {
@@ -368,20 +318,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
                 builder.show();
             }
         });
-    }    
-
-//	private void switchExistLevel(File levelFile) {
-    	/*try {
-    		BufferedReader br = new BufferedReader(new FileReader(levelFile));
-    		String theBricks = br.readLine();
-    		bricks.FromJSON(theBricks);
-    		//ball.resetCoordsAndSpeed();
-    		bar.resetCoords();
-    	} catch (IOException e) {
-    		// TODO Auto-generated catch block
-    		e.printStackTrace();
-    	}*/
-//	}
+    }
 
     private boolean isInTopTen(int scores) {
         List<RuntimeData> highScoreList = rData.getRecords();

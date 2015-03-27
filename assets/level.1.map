@@ -1,0 +1,1 @@
+{"level":1,"initballx":0.5F,"initbally":0.5F,"initballxspeed":0.004F,"initballyspeed":-0.01F,"barlengthfactor":0.4F,"bricks":[{"x":0.18F, "y":0.1F, "special":true},{"x":0.50F, "y":0.1F, "special":false},{"x":0.30F, "y":0.2F, "special":false},{"x":0.78F, "y":0.2F, "special":false}]}

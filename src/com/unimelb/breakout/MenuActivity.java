@@ -12,6 +12,7 @@ package com.unimelb.breakout;
  */
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -37,11 +38,6 @@ public class MenuActivity extends Activity{
     public static final int MENU_ACTIVITY = 1;
     private volatile RuntimeData rData;
     private volatile TextView welcome;
-    /* private Button btnPlayer;
-    private Button btnContinue;
-    private Button btnSelectLevel;
-    private Button btnStartNewGame;
-    private Button btnUpdateLevel; */
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,23 +60,12 @@ public class MenuActivity extends Activity{
                 setSavedRuntimeData();
             }
         }
-        downloadTopTenRecords();
+//        downloadTopTenRecords();
         
         welcome = (TextView)findViewById(R.id.welcome);
         if (rData.getName() != null) {
             welcome.setText("Welcome " + Utils.nameInitials(rData.getName()));
         }
-
-        /*btnPlayer = (Button)findViewById(R.id.newPlayerButton);
-        btnContinue = (Button)findViewById(R.id.continueButton);
-        btnStartNewGame = (Button)findViewById(R.id.startNewGameButton);
-        btnSelectLevel = (Button)findViewById(R.id.selectLevelButton);*/
-        
-//	    File root = android.os.Environment.getExternalStorageDirectory();
-//	    File dir = new File (root.getAbsolutePath() + "/Breakout/Maps");
-//	    if(!dir.isDirectory()) {
-//	    	dir.mkdirs();
-//	    }
 	}
 	
 	public void clickNewPlayer(View view) {
@@ -109,8 +94,10 @@ public class MenuActivity extends Activity{
         builder.setCancelable(false);
         
         String levelFileName = "level.1.map"; // always start from level 1
-        String path = this.getFilesDir().getPath();
-        File levelFile = new File(path + levelFileName);
+        
+//        String path = this.getFilesDir().getPath();
+//        File levelFile = new File(path + levelFileName);
+        
         if (rData.getName() == null) {
             builder.setMessage(R.string.no_player);
             builder.setPositiveButton(R.string.lbl_goto_player, new DialogInterface.OnClickListener() {
@@ -121,10 +108,12 @@ public class MenuActivity extends Activity{
             });
             builder.setNegativeButton(R.string.lbl_cancel, null);
             builder.create().show();
-        }  else if (!levelFile.exists()) {
-            Log.d(TAG, "level.1.map exists?" + String.valueOf(levelFile.exists()));
-            initNewGame();
-            switchNewDownLevel(levelFile);
+            
+//        }  else if (!levelFile.exists()) {
+//            Log.d(TAG, "level.1.map exists?" + String.valueOf(levelFile.exists()));
+//            initNewGame();
+//            switchNewDownLevel(levelFile);
+            
         } else if (rData.getScore() > 0 && !rData.isUploaded()) {
             builder.setMessage(R.string.warn_new_game);
             builder.setPositiveButton(R.string.lbl_ok, new DialogInterface.OnClickListener() {
@@ -154,41 +143,13 @@ public class MenuActivity extends Activity{
 	//Select existing level data
     public void clickSelectLevel(View view) {
         callActivityForResult(SelectLevelActivity.class);
-        /*String FILENAME = "level";
-        File file = new File(getExternalFilesDir(null), FILENAME);
-        StringBuilder text = new StringBuilder();
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = br.readLine()) != null) {
-                text.append(line);
-                text.append('\n');
-            }
-        } catch (IOException e) {
-
-        }
-        String message = "Data loaded: " + text;
-        //level.setText("Data loaded: " + text);
-        Toast.makeText(MenuActivity.this, message, Toast.LENGTH_LONG).show(); */
     }
     
   	public void clickUpdate(View view) {
-  		/**
-	  	String levelURL = "http://128.199.134.230/level.php?levelID=";
-	  	String FILENAME = "Level-" + level + ".map";
-		File root = android.os.Environment.getExternalStorageDirectory(); 
-		File file = new File (root.getAbsolutePath() + "/Breakout/Maps",FILENAME);
-		
-		UpdateLevelActivity UA = new UpdateLevelActivity(null, file);
-		UA.setLevel(level);
-		UA.setContext(context);
-		UA.execute(levelURL);  
-  		**/
-  		
-  		String levelURL = "http://128.199.134.230/level.php?levelID=";
-  		UpdateAllLevelTask updateAll = new UpdateAllLevelTask(); 												
-  	  	updateAll.setContext(this);
-  	  	updateAll.execute(levelURL);
+//  		String levelURL = "http://128.199.134.230/level.php?levelID=";
+//  		UpdateAllLevelTask updateAll = new UpdateAllLevelTask(); 												
+//  	  	updateAll.setContext(this);
+//  	  	updateAll.execute(levelURL);
   	}
     
   	public void clickHighScore(View view) {
@@ -358,6 +319,15 @@ public class MenuActivity extends Activity{
                 rData.setBallXSpeed(speedx);
                 rData.setBallYSpeed(speedy);
                 rData.setBarXSpeed(barXSpeed);
+                
+
+                /* 27Mar_Daphne: temporary code: to get the local saved high score list*/
+                String records = sharedPref.getString("SAVED.RECORDS", null);
+                if(records != null) {
+                    List<RuntimeData> highScoreList = Utils.buildRecords(records);
+                    highScoreList = Collections.synchronizedList(highScoreList);
+                    rData.setRecords(highScoreList);
+                }
             }
         } catch (Exception e) {
             Log.d(TAG, "something wrong!!!!!!!!!!");
@@ -403,24 +373,6 @@ public class MenuActivity extends Activity{
                 builder.show();
             }
         });
-           
-//        while(true) {
-//            if(levelFile.exists() || negativeButton.isPressed())
-//                break;
-//        }
-        //jump out of the infinite loop
-        // and now levelFile become exists 
-//        if(positiveButton.isPressed()&&levelFile.exists()) {
-//            this.runOnUiThread(new Runnable() {     
-//                public void run() {
-//                   
-//                }});
-//          switchExistLevel(levelFile);
-//          initialInterface();
-//        }
-//        if(negativeButton.isPressed()) {    
-//            rData.setRunning(false);    
-//        }
     }
     
     public RuntimeData getrData() {

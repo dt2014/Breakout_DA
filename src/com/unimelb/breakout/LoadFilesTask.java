@@ -66,11 +66,15 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
             InputStream inputStream = null;
             try {
                 //Thread.sleep(2000);
-//                inputStream = context.getAssets().open(fileName);
+                publishProgress("Accessing Level File");
+                
+                /* 27Mar_Daphne: Temporarily comment out code. Change the location of the map files to 'assets'
                 File levelFile = new File(context.getFilesDir().getPath() + fileName);
                 Log.d(TAG, "LoadLevelTask: level file " + fileName + " " + String.valueOf(levelFile.exists()));
-                publishProgress("Accessing Level File");
                 inputStream = new FileInputStream(levelFile);
+                */
+                inputStream = context.getAssets().open(fileName);
+                
                 int size = inputStream.available();
                 byte[] buffer = new byte[size];
                 inputStream.read(buffer);

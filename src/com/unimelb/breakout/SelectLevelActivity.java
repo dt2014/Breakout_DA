@@ -43,14 +43,15 @@ public class SelectLevelActivity extends ListActivity {
         setContentView(R.layout.list);
         
         ListView levelList = (ListView)findViewById(android.R.id.list);
-        int availablelevel = 0;
-        for (int i = 1; i <= 3; ++i) {
-            String fileName = "level." + i + ".map";
-            File levelFile = new File(this.getFilesDir().getPath() + fileName);
-            if (levelFile.exists()) {
-                availablelevel++;
-            }
-        }
+//        int availablelevel = 0;
+//        for (int i = 1; i <= 3; ++i) {
+//            String fileName = "level." + i + ".map";
+//            File levelFile = new File(this.getFilesDir().getPath() + fileName);
+//            if (levelFile.exists()) {
+//                availablelevel++;
+//            }
+//        }
+        int availablelevel = 3;
         
         List<String> levels = new ArrayList<String>(availablelevel);
         for (int i = 0; i < availablelevel; ++i) {

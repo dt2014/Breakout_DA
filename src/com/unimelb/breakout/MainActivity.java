@@ -208,24 +208,13 @@ public class MainActivity extends Activity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
+                        /* 27Mar_Daphne: Temporarily comment out code. Change requesting server to accessing local list.
                         String scoreURL = "http://128.199.134.230/updateScore.php?score="+score+"&username="+username;
                         final UpdateScoreTask uploadScoreTask = new UpdateScoreTask(MainActivity.this);
                         uploadScoreTask.execute(scoreURL);
-                        /*new Thread() {
-                            @Override
-                            public void run() {
-                                try {
-                                    uploadScoreTask.get(5000, TimeUnit.MILLISECONDS);
-                                } catch (Exception e) {
-                                    uploadScoreTask.cancel(true);
-                                    MainActivity.this.runOnUiThread(new Runnable(){
-                                        public void run() {
-                                            Toast.makeText(MainActivity.this, "Error occurred when uploading high score, please try again later.", Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-                                }
-                             }
-                        }.start();*/
+                        */
+                        final UpdateScoreTask uploadScoreTask = new UpdateScoreTask(MainActivity.this);
+                        uploadScoreTask.execute(String.valueOf(score), username);
                     }
                 });  
                 builder.setNegativeButton(R.string.btn_no, new DialogInterface.OnClickListener() {
