@@ -265,10 +265,11 @@ class API
             $stmt = $this->pdo->prepare('UPDATE Player SET player_score = player_score - ? WHERE player_name = ?;');
             $stmt->execute(array($value,$opponent_name));
             
-            // DESTROY THE BRICK
-            $this->eliminateBrick($brick_id);
         }
-        
+      
+		// DESTROY THE BRICK
+        $this->eliminateBrick($brick_id);
+		
         return array('Info' => 'Brick Eliminate Success');
     }
                                                  
