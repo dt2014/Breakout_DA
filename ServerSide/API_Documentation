@@ -1,0 +1,87 @@
+The api.php is the API developed for the server.
+api_config.php is the configuration for the database.
+Breakout.sql is the file to create the database.
+
+Please HTTP POST method to communicate with the server in the Android program.
+How to use the api is illustrated in the follow:
+
+Because in our game the communication with server mainly decided into two kinds:
+1. read data
+2. write data.
+
+First introduce how to read data from server
+
+1. Read the ball’s position and speed :
+you need to specify the command of the request is “read”  and the variable “ball_id” in the POST Method. and write these variable in the body part of HTTP Request  like :
+
+command=‘read’&ball_id=‘the id of the ball’
+
+and return will be a JSON String look like:
+{"ball_id":"1","position":{"ball_position_x":"0.440","ball_position_y":"0.410"},"speed":{"ball_speed_x":"1.111","ball_speed_y":"2.222"}}
+
+2. Read the score of two player:
+you need to specify the command of the request is “read” , specify two variable in the HTTP POST Method “player1_name” and “player2_name” like:
+
+command=‘read’& player1_name =‘a name’&player2_name=‘another name’
+
+return will look like: (JSON String again)
+{"player1Score":"8950","player2Score":"4580"}
+
+3. Read the other player’s bar position
+you need to specify the command of the request is “read” , specify “player_name” like:
+
+command=‘read’& player_name =‘a name’
+
+return will look like:
+{"bar_position_x":"0.123","bar_position_y":"0.456"}
+
+4. Download the whole level
+you need to specify the command of the request is “read” , specify “level” like:
+
+command=‘read’& level =‘’    <—because we just has one level this can be anything but empty,  all I need is you to specify you want a level, i don’t care which level is it coz we have one, not matter what you fill in that variable i still give you the same thing.
+
+return will look like:
+[{"brick_id":"1","brick_position_x":"0.222","brick_position_y":"0.560","brick_status":"ACTIVE","brick_value":"100","brick_special":"N"},{"brick_id":"2","brick_position_x":"0.333","brick_position_y":"0.202","brick_status":"ACTIVE","brick_value":"300","brick_special":"N"},{"brick_id":"3","brick_position_x":"0.444","brick_position_y":"0.345","brick_status":"INACTIVE","brick_value":"400","brick_special":"N"},{"brick_id":"4","brick_position_x":"0.555","brick_position_y":"0.135","brick_status":"INACTIVE","brick_value":"105","brick_special":"Y"}]
+……………
+
+Following part is how to write data to server
+
+1. Write the position of my ball to server
+you need to specify the command of the request is “write” , specify “ball_id”, “ball_position_x”,“ball_position_y”  like:
+
+command=‘write’& ball_id =‘the id of ball’& ball_position_x=‘x’& ball_position_y=‘y’
+
+there will be no return coz you are not reading things.
+
+2. Write the speed of my ball to server
+
+similar to 1.
+
+command=‘write’& ball_id =‘the id of ball’& ball_speed_x=‘speed_x’& ball_speed_y=‘speed_y’
+also no return.
+
+3. After hitting the brick to write score.
+This has two case, first case is you hit the ball and eliminate  it successfully, second case is you write the message to server but other people write the same message to server one step ahead, then you fail to eliminate the brick you don’t need to bounce. Besides the marks will be updated in the server in this request and also the field ‘brick_status’ in Brick table of that brick will be updated to value = “INACTIVE”. And taking pointing from other guy is also considered in this request. No need to worry about anything, just specify the brick_id. Because i can know if the brick is special in the database, user of this API no need to worry about the special brick thing.
+
+thing needs to specify in the POST method as I said: command, brick_id,player_name. brick_id is the brick you hit, player_name is you. so the entire thing look like:
+command=‘write’&player_name=‘you’&brick_id=‘a brick’
+
+Here different from 1and 2 we need some return from server to know whether we successfully eliminate the brick, because this will determine we bounce or not.
+
+If hit eliminate successfully return:
+{"Info":"Brick Eliminate Success"}
+
+If  not success return:
+{"Info":"Brick Eliminate Not Success"}
+
+Codes in the phone should have a further step to handle these two message as I said above.
+
+4. write the bar position of mine to server
+
+specify player_name,bar_position_x,bar_position_y
+like :
+command=‘write’&player_name=‘name’&bar_position_x=‘x’& bar_position_y=‘y’
+
+no return.
+
+
