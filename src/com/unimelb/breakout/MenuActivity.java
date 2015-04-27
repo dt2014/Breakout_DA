@@ -216,7 +216,6 @@ public class MenuActivity extends Activity{
                 float initbally = sharedPref.getFloat("SAVED.INITBALLY", 0.0F);
                 float initspeedx = sharedPref.getFloat("SAVED.INITSPEEDX", 0.0F);
                 float initspeedy = sharedPref.getFloat("SAVED.INITSPEEDY", 0.0F);
-                float barlengthfactor = sharedPref.getFloat("SAVED.BARLENGTHFACTOR", 0.0F);
 
                 float ballx = sharedPref.getFloat("SAVED.BALLX", 0.0F);
                 float bally = sharedPref.getFloat("SAVED.BALLY", 0.0F);
@@ -230,20 +229,19 @@ public class MenuActivity extends Activity{
                 bricks.initBricks(brickData);
                 bricks.setViewSize(gameViewWidth, gameViewHeight);
                 rData.setBricks(bricks);
-                Bar bar= new Bar(barx, bary, barlengthfactor, gameViewWidth, gameViewHeight);
-                rData.setBar(bar);
+                Bar bar= new Bar(barx, bary, gameViewWidth, gameViewHeight);
+                rData.setMyBar(bar);
                 Ball ball = new Ball(ballx, bally, speedx, speedy, 
                         gameViewWidth, gameViewHeight, bar);
-                rData.setInitballx(initballx);
-                rData.setInitbally(initbally);
-                rData.setInitballXSpeed(initspeedx);
-                rData.setInitballYSpeed(initspeedy);
-                rData.setBarLengthFactor(barlengthfactor);
-                rData.setBar(bar);
-                rData.setBall(ball);
-                rData.setBallXSpeed(speedx);
-                rData.setBallYSpeed(speedy);
-                rData.setBarXSpeed(barXSpeed);
+                rData.setInitBallX(initballx);
+                rData.setInitBallY(initbally);
+                rData.setInitBallXSpeed(initspeedx);
+                rData.setInitBallYSpeed(initspeedy);
+                rData.setMyBar(bar);
+                rData.setBall1(ball);
+                rData.setBall1XSpeed(speedx);
+                rData.setBall1YSpeed(speedy);
+                rData.setMyBarXSpeed(barXSpeed);
                 
             }
         } catch (Exception e) {

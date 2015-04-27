@@ -1,67 +1,66 @@
 {
-	"initballx": 0.7F,
-	"initbally": 0.4F,
-	"initballxspeed": 0.008F,
-	"initballyspeed": 0.01F,
-	"barlengthfactor": 0.2F,
+	"initballx": 0.5F,
+	"initbally": 0.7F,
+	"initballxspeed": 0.005F,
+	"initballyspeed": 0.005F,
 	"bricks": [{
 		"x": 0.02F,
-		"y": 0.2F,
+		"y": 0.5F,
 		"special": false
 	},
 	{
 		"x": 0.10F,
-		"y": 0.2F,
+		"y": 0.5F,
 		"special": false
 	},
 	{
 		"x": 0.18F,
-		"y": 0.2F,
+		"y": 0.5F,
 		"special": false
 	},
 	{
 		"x": 0.26F,
-		"y": 0.2F,
+		"y": 0.5F,
 		"special": false
 	},
 	{
 		"x": 0.34F,
-		"y": 0.2F,
+		"y": 0.5F,
 		"special": false
 	},
 	{
 		"x": 0.42F,
-		"y": 0.2F,
+		"y": 0.5F,
 		"special": true
 	},
 	{
 		"x": 0.50F,
-		"y": 0.2F,
+		"y": 0.5F,
 		"special": false
 	},
 	{
 		"x": 0.58F,
-		"y": 0.2F,
+		"y": 0.5F,
 		"special": false
 	},
 	{
 		"x": 0.66F,
-		"y": 0.2F,
+		"y": 0.5F,
 		"special": false
 	},
 	{
 		"x": 0.74F,
-		"y": 0.2F,
+		"y": 0.5F,
 		"special": false
 	},
 	{
 		"x": 0.82F,
-		"y": 0.2F,
+		"y": 0.5F,
 		"special": false
 	},
 	{
 		"x": 0.90F,
-		"y": 0.2F,
+		"y": 0.5F,
 		"special": false
 	}]
 }

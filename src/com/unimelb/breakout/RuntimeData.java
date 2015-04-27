@@ -20,22 +20,31 @@ public class RuntimeData implements Serializable {
     
     private volatile int gameViewWidth;
     private volatile int gameViewHeight;
+    
+    private volatile Ball ball1;
+    private volatile float ball1X;
+    private volatile float ball1Y;
+    private volatile float ball1XSpeed;
+    private volatile float ball1YSpeed;
 
-    private volatile Ball ball;
-    private volatile float ballx;
-    private volatile float bally;
-    private volatile float ballXSpeed;
-    private volatile float ballYSpeed;
+    private volatile Ball ball2;
+    private volatile float ball2X;
+    private volatile float ball2Y;
+    private volatile float ball2XSpeed;
+    private volatile float ball2YSpeed;
     
-    private volatile float initballx; // factor to screen view
-    private volatile float initbally; // factor to screen view
-    private volatile float initballXSpeed; // factor to screen view
-    private volatile float initballYSpeed; // factor to screen view
+    private volatile float initBallX; // factor to screen view
+    private volatile float initBallY; // factor to screen view
+    private volatile float initBallXSpeed; // factor to screen view
+    private volatile float initBallYSpeed; // factor to screen view
     
-    private volatile Bar bar;
-    private volatile float barx;
-    private volatile float barLengthFacor;
-    private volatile float barXSpeed;
+    private volatile Bar myBar;
+    private volatile float myBarX;
+    private volatile float myBarXSpeed;
+    
+    private volatile Bar rivalBar;
+    private volatile float rivalBarX;
+    private volatile float rivalBarXSpeed;
     
     private volatile Bricks bricks;
 
@@ -71,20 +80,20 @@ public class RuntimeData implements Serializable {
         this.gameViewHeight = gameViewHeight;
     }
     
-    public Ball getBall() {
-        return ball;
+    public Ball getBall1() {
+        return ball1;
     }
     
-    public void setBall(Ball ball) {
-        this.ball = ball;
+    public void setBall1(Ball ball1) {
+        this.ball1 = ball1;
     }
     
-    public Bar getBar() {
-        return bar;
+    public Bar getMyBar() {
+        return myBar;
     }
     
-    public void setBar(Bar bar) {
-        this.bar = bar;
+    public void setMyBar(Bar myBar) {
+        this.myBar = myBar;
     }
  
     public Bricks getBricks() {
@@ -111,95 +120,151 @@ public class RuntimeData implements Serializable {
 		this.rivalScore = rivalScore;
 	}
 
-	public float getBallx() {
-        return ballx;
+	public float getBall1X() {
+        return ball1X;
     }
 
-    public void setBallx(float ballx) {
-        this.ballx = ballx;
+    public void setBall1X(float ball1X) {
+        this.ball1X = ball1X;
     }
 
-    public float getInitballx() {
-        return initballx;
+    public float getInitBallX() {
+        return initBallX;
     }
 
-    public void setInitballx(float initballx) {
-        this.initballx = initballx;
+    public void setInitBallX(float initBallX) {
+        this.initBallX = initBallX;
     }
 
-    public float getBally() {
-        return bally;
+    public float getBall1Y() {
+        return ball1Y;
     }
 
-    public void setBally(float bally) {
-        this.bally = bally;
+    public void setBall1Y(float ball1Y) {
+        this.ball1Y = ball1Y;
     }
 
-    public float getBallXSpeed() {
-        return ballXSpeed;
+    public float getBall1XSpeed() {
+        return ball1XSpeed;
     }
 
-    public void setBallXSpeed(float ballXSpeed) {
-        this.ballXSpeed = ballXSpeed;
+    public void setBall1XSpeed(float ball1XSpeed) {
+        this.ball1XSpeed = ball1XSpeed;
     }
 
-    public float getBallYSpeed() {
-        return ballYSpeed;
+    public float getBall1YSpeed() {
+        return ball1YSpeed;
     }
 
-    public void setBallYSpeed(float ballYSpeed) {
-        this.ballYSpeed = ballYSpeed;
+    public void setBall1YSpeed(float ball1YSpeed) {
+        this.ball1YSpeed = ball1YSpeed;
     }
     
-    public float getInitbally() {
-        return initbally;
+    public Ball getBall2() {
+		return ball2;
+	}
+
+	public void setBall2(Ball ball2) {
+		this.ball2 = ball2;
+	}
+
+	public float getBall2X() {
+		return ball2X;
+	}
+
+	public void setBall2X(float ball2x) {
+		ball2X = ball2x;
+	}
+
+	public float getBall2Y() {
+		return ball2Y;
+	}
+
+	public void setBall2Y(float ball2y) {
+		ball2Y = ball2y;
+	}
+
+	public float getBall2XSpeed() {
+		return ball2XSpeed;
+	}
+
+	public void setBall2XSpeed(float ball2xSpeed) {
+		ball2XSpeed = ball2xSpeed;
+	}
+
+	public float getBall2YSpeed() {
+		return ball2YSpeed;
+	}
+
+	public void setBall2YSpeed(float ball2ySpeed) {
+		ball2YSpeed = ball2ySpeed;
+	}
+
+	public float getInitBallY() {
+        return initBallY;
     }
 
-    public void setInitbally(float initbally) {
-        this.initbally = initbally;
+    public void setInitBallY(float initBallY) {
+        this.initBallY = initBallY;
     }
 
-    public float getInitballXSpeed() {
-        return initballXSpeed;
+    public float getInitBallXSpeed() {
+        return initBallXSpeed;
     }
 
-    public void setInitballXSpeed(float initballXSpeed) {
-        this.initballXSpeed = initballXSpeed;
+    public void setInitBallXSpeed(float initBallXSpeed) {
+        this.initBallXSpeed = initBallXSpeed;
     }
 
-    public float getInitballYSpeed() {
-        return initballYSpeed;
+    public float getInitBallYSpeed() {
+        return initBallYSpeed;
     }
 
-    public void setInitballYSpeed(float initballYSpeed) {
-        this.initballYSpeed = initballYSpeed;
+    public void setInitBallYSpeed(float initBallYSpeed) {
+        this.initBallYSpeed = initBallYSpeed;
     }
 
-    public float getBarx() {
-        return barx;
+    public float getMyBarX() {
+        return myBarX;
     }
 
-    public void setBarx(float barx) {
-        this.barx = barx;
+    public void setMyBarX(float myBarX) {
+        this.myBarX = myBarX;
     }
 
-    public float getBarLengthFactor() {
-        return barLengthFacor;
+    public float getMyBarXSpeed() {
+        return myBarXSpeed;
     }
 
-    public void setBarLengthFactor(float barLengthFactor) {
-        this.barLengthFacor = barLengthFactor;
+    public void setMyBarXSpeed(float myBarXSpeed) {
+        this.myBarXSpeed = myBarXSpeed;
     }
 
-    public float getBarXSpeed() {
-        return barXSpeed;
-    }
+    public Bar getRivalBar() {
+		return rivalBar;
+	}
 
-    public void setBarXSpeed(float barXSpeed) {
-        this.barXSpeed = barXSpeed;
-    }
+	public void setRivalBar(Bar rivalBar) {
+		this.rivalBar = rivalBar;
+	}
 
-    public String getMyName() {
+	public float getRivalBarX() {
+		return rivalBarX;
+	}
+
+	public void setRivalBarX(float rivalBarX) {
+		this.rivalBarX = rivalBarX;
+	}
+
+	public float getRivalBarXSpeed() {
+		return rivalBarXSpeed;
+	}
+
+	public void setRivalBarXSpeed(float rivalBarXSpeed) {
+		this.rivalBarXSpeed = rivalBarXSpeed;
+	}
+
+	public String getMyName() {
         return myName;
     }
 

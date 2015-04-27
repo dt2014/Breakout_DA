@@ -175,7 +175,7 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="false"
-            android:layout_marginBottom="100dp"
+            android:layout_marginBottom="50dp"
             android:text="@string/tip_ready"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/prompt_color" />

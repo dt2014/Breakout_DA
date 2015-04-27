@@ -19,8 +19,8 @@ import android.graphics.Paint;
 public class Bar implements Serializable {
     private static final long serialVersionUID = 6816443624906944960L;
     
-    public static final float heightFactor = 0.03F; // the portion of the screenHeight
-    private volatile float lengthFactor; // the portion of screenWidth
+    public static final float heightFactor = 0.02F; // the portion of the screenHeight
+    public static final float lengthFactor = 0.4F; // the portion of screenWidth
     private volatile float length;
     private volatile float height;
     private volatile float x;
@@ -36,10 +36,9 @@ public class Bar implements Serializable {
     private volatile int count;
     private volatile long prevT;
     
-    public Bar(float x, float y, float lengthFactor, int screenWidth, int screenHeight) {
+    public Bar(float x, float y, int screenWidth, int screenHeight) {
         this.x = x;
         this.y = y;
-        this.lengthFactor = lengthFactor;
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
@@ -105,10 +104,6 @@ public class Bar implements Serializable {
         }
 	}
 	
-	public void setY(float d) {
-		this.y = d;
-	}
-    
     public float getOldTouchX() {
         return oldTouchX;
     }
@@ -144,10 +139,4 @@ public class Bar implements Serializable {
             isMoved = false;
         }
     }
-    
-	/*
-	public void resetCoords() {
-        setX(screenWidth/2); 
-        setY(9*screenHeight/10);
-	}*/
 }

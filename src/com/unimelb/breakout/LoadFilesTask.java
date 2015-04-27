@@ -70,7 +70,7 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
                 //Thread.sleep(2000);
                 Log.d(TAG,json);
                 if (json != null) {
-                    List<Brick> brickData = Utils.extraLevelData(json, rData);
+                    List<Brick> brickData = Utils.extraMapData(json, rData);
                     Bricks bricks = new Bricks(rData.getGameViewWidth(), 
                             rData.getGameViewHeight());
                     bricks.initBricks(brickData);

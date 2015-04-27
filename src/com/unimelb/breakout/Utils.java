@@ -24,15 +24,14 @@ public final class Utils {
 
     private Utils() {}
 
-    public static final List<Brick> extraLevelData(String json, RuntimeData rData) {
+    public static final List<Brick> extraMapData(String json, RuntimeData rData) {
         Gson gson = new Gson();
         JsonObject jobj = gson.fromJson(json, JsonObject.class);
         
-        rData.setInitballx(gson.fromJson(jobj.get("initballx"), float.class));
-        rData.setInitbally(gson.fromJson(jobj.get("initbally"), float.class));
-        rData.setInitballXSpeed(gson.fromJson(jobj.get("initballxspeed"), float.class));
-        rData.setInitballYSpeed(gson.fromJson(jobj.get("initballyspeed"), float.class));
-        rData.setBarLengthFactor(gson.fromJson(jobj.get("barlengthfactor"), float.class));
+        rData.setInitBallX(gson.fromJson(jobj.get("initballx"), float.class));
+        rData.setInitBallY(gson.fromJson(jobj.get("initbally"), float.class));
+        rData.setInitBallXSpeed(gson.fromJson(jobj.get("initballxspeed"), float.class));
+        rData.setInitBallYSpeed(gson.fromJson(jobj.get("initballyspeed"), float.class));
         
         Type bricksType = new TypeToken<ArrayList<Brick>>() {}.getType();
         return gson.fromJson(jobj.get("bricks"), bricksType);
