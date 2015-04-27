@@ -130,7 +130,7 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
 //            Toast.makeText(context, "Level file loaded sucessfully!", Toast.LENGTH_SHORT).show();
             if (context.getClass() == MenuActivity.class) {
                 ((MenuActivity) context).callActivityForResult(MainActivity.class);
-            } else if (context.getClass() == MainActivity.class) {
+            } else { //context.getClass() == MainActivity.class) 
 //                ((MainActivity) context).runOnUiThread(new Runnable() {     
 //                    public void run() {
 //                        ((MainActivity) context).displayReadyScreen();
@@ -146,14 +146,6 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
 //                intent.putExtras(extras);
 //                context.startActivity(intent);
 //                ((Activity) context).finish();
-            } else if (context.getClass() == SelectLevelActivity.class) {
-                  Bundle extras = new Bundle();
-                  extras.putSerializable("RUNTIME.DATA", rData);
-                  Intent intent = new Intent();
-                  intent.setClass(context, MainActivity.class);
-                  intent.putExtras(extras);
-                  context.startActivity(intent);
-                  ((Activity) context).finish();
             }
         } else if (! isCancelled()) {
             showError();

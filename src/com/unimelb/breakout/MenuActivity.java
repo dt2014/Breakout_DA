@@ -139,18 +139,6 @@ public class MenuActivity extends Activity{
 	        Toast.makeText(this, R.string.no_continue, Toast.LENGTH_LONG).show(); 
 	    }
     }
-	
-	//Select existing level data
-    public void clickSelectLevel(View view) {
-        callActivityForResult(SelectLevelActivity.class);
-    }
-    
-  	public void clickUpdate(View view) {
-//  		String levelURL = "http://128.199.134.230/level.php?levelID=";
-//  		UpdateAllLevelTask updateAll = new UpdateAllLevelTask(); 												
-//  	  	updateAll.setContext(this);
-//  	  	updateAll.execute(levelURL);
-  	}
     
   	public void clickHighScore(View view) {
   	    rData.setRecordShow(true);
