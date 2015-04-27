@@ -23,7 +23,7 @@ import android.view.View;
 import android.widget.EditText;
 
 public class PlayerActivity extends Activity {
-    private static final String TAG = PlayerActivity.class.getName();
+//    private static final String TAG = PlayerActivity.class.getName();
     private volatile RuntimeData rData;
     private volatile EditText playerName;
     

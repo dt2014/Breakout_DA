@@ -18,7 +18,7 @@
 	<string name="loading_text">Loading files&#8230;</string>
 	<string name="err_load_map">Error occurred when loading map file. Please try again Later.</string>
     <string name="exit">Exit</string>
-    <string name="start_new_game">Start New Game</string>
+    <string name="start_game">Start Game</string>
     <string name="no_player">Please enter a player name before starting a new game.</string>
     <string name="warn_new_game">Warning: your current score/lives/level data will be cleared.</string>
     <string name="lbl_goto_player">Enter Player Name</string>

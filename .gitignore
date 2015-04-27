@@ -35,6 +35,7 @@ Icon
 .Spotlight-V100
 .Trashes
 
+.settings/
 bin/**/*
 !bin/Breakout.apk
 .classpath

@@ -12,14 +12,9 @@ package com.unimelb.breakout;
  */
 
 import java.io.Serializable;
-
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
 
 public class Ball implements Serializable {
     private static final long serialVersionUID = -1002240139201271969L;

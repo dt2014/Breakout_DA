@@ -11,8 +11,6 @@ package com.unimelb.breakout;
  *          Shuangchao Yin, 612511, shuangchaoy@student.unimelb.edu.au
  */
 
-import java.io.File;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -30,7 +28,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MenuActivity extends Activity{
     private static final String TAG = MenuActivity.class.getName();
@@ -60,7 +57,6 @@ public class MenuActivity extends Activity{
                 setSavedRuntimeData();
             }
         }
-//        downloadTopTenRecords();
         
         welcome = (TextView)findViewById(R.id.welcome);
         if (rData.getMyName() != null) {

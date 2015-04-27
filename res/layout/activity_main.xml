@@ -5,20 +5,10 @@
     android:background="@drawable/main_game_wall_paper"
     android:orientation="vertical" >
 
-    <ImageButton
-        android:id="@+id/pauseButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@string/pause"
-    	android:background="@color/transparent"
-        android:onClick="clickPauseOrResume" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="10dp"
 		android:layout_marginLeft="10dp"
         android:baselineAligned="false"
         android:orientation="horizontal"
@@ -159,7 +149,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="50dp"
         android:background="@drawable/gameborder"
         android:orientation="vertical"
         android:padding="2dp" >

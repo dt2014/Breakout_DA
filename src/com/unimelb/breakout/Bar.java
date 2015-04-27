@@ -15,7 +15,6 @@ import java.io.Serializable;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
 
 public class Bar implements Serializable {
     private static final long serialVersionUID = 6816443624906944960L;

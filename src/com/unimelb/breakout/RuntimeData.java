@@ -12,7 +12,6 @@ package com.unimelb.breakout;
  */
 
 import java.io.Serializable;
-import java.util.List;
 
 public class RuntimeData implements Serializable {    
     private static final long serialVersionUID = 8666060483413961394L;

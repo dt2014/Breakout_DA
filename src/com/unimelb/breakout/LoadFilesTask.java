@@ -11,8 +11,7 @@ package com.unimelb.breakout;
  *          Shuangchao Yin, 612511, shuangchaoy@student.unimelb.edu.au
  */
 
-import java.io.File;
-import java.io.FileInputStream;
+
 import java.io.InputStream;
 import java.util.List;
 
@@ -22,9 +21,7 @@ import android.app.ProgressDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.util.Log;
 
 public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
@@ -33,7 +30,6 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
     
     private ProgressDialog pg;
     private  int steps = 0;
-    private boolean finished;
     private Context context;
     
     public LoadFilesTask (Context context) {
@@ -48,7 +44,7 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
         pg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pg.setProgress(0);
         pg.setMax(100);
-        pg.setTitle("Load Local Level File");
+        pg.setTitle("Load Map File");
         pg.setMessage("loading...");
         pg.show();
              
@@ -64,11 +60,6 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
                 //Thread.sleep(2000);
                 publishProgress("Accessing Game Map");
                 
-                /* 27Mar_Daphne: Temporarily comment out code. Change the location of the map files to 'assets'
-                File levelFile = new File(context.getFilesDir().getPath() + fileName);
-                Log.d(TAG, "LoadLevelTask: level file " + fileName + " " + String.valueOf(levelFile.exists()));
-                inputStream = new FileInputStream(levelFile);
-                */
                 inputStream = context.getAssets().open(fileName);
                 
                 int size = inputStream.available();
@@ -85,8 +76,6 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
                     bricks.initBricks(brickData);
                     rData.setBricks(bricks);
                     //Thread.sleep(1000);
-                    
-//                    savePreferenceData();
                     
                     publishProgress("Retriving Done");
                     return Boolean.TRUE;
@@ -134,38 +123,6 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
         if(pg!=null)
             pg.dismiss();
     }
-    
-//    private void savePreferenceData() {
-//        SharedPreferences sharedPref = context.
-//                getSharedPreferences(MenuActivity.PREF, Context.MODE_PRIVATE);
-//        SharedPreferences.Editor editor = sharedPref.edit();
-//        editor.putInt("SAVED.LEVEL", rData.getLevel());
-//        editor.putInt("SAVED.SCORE", rData.getScore());
-//        editor.putInt("SAVED.LIVES", rData.getLives());
-//        editor.putString("SAVED.NAME", rData.getName());
-//        editor.putBoolean("SAVED.UPLOADED", rData.isUploaded());
-//        if (rData.getBricks() == null || rData.getBricks().getAliveBrickCount() == 0) {
-//            editor.putString("SAVED.BRICKS", null);
-//        } else {
-//            Ball ball = rData.getBall();
-//            Bar bar = rData.getBar();
-//            editor.putFloat("SAVED.BALLX", ball.getX());
-//            editor.putFloat("SAVED.BALLY", ball.getY());
-//            editor.putFloat("SAVED.SPEEDX", ball.getXSpeed());
-//            editor.putFloat("SAVED.SPEEDY", ball.getYSpeed());
-//            editor.putFloat("SAVED.BARX", bar.getX());
-//            editor.putFloat("SAVED.BARY", bar.getY());
-//            editor.putFloat("SAVED.BARXSPEED", bar.getBarXSpeed());
-//            String json = Utils.saveBricks(rData.getBricks());
-//            editor.putString("SAVED.BRICKS", json);
-//            editor.putFloat("SAVED.INITBALLX", rData.getInitballx());
-//            editor.putFloat("SAVED.INITBALLY", rData.getInitbally());
-//            editor.putFloat("SAVED.INITSPEEDX", rData.getInitballXSpeed());
-//            editor.putFloat("SAVED.INITSPEEDY", rData.getInitballYSpeed());
-//            editor.putFloat("SAVED.BARLENGTHFACTOR", rData.getBarLengthFactor());
-//        }
-//        editor.commit();
-//    }
     
     public void showError() {
         ((Activity) context).runOnUiThread(new Runnable() {

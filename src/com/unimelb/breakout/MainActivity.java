@@ -16,16 +16,12 @@ import android.media.SoundPool;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
@@ -68,9 +64,6 @@ public class MainActivity extends Activity {
         
 		sp = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 		collideId = sp.load(this, R.raw.collide, 1);
-		
-		ImageButton pauseButton = (ImageButton) findViewById(R.id.pauseButton);
-		pauseButton.setImageResource(R.drawable.pause);
 
 		Log.d(TAG,"game view onCreate");
 	}
@@ -86,15 +79,7 @@ public class MainActivity extends Activity {
 	}
 
     protected void onPause() {
-        worldView.saveRuntimeData();
-        SharedPreferences sharedPref = getSharedPreferences(MenuActivity.PREF, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("SAVED.MYNAME", rData.getMyName());
-        editor.putString("SAVED.RIVALNAME", rData.getRivalName());
-        editor.putInt("SAVED.MYSCORE", rData.getMyScore());
-        editor.putInt("SAVED.RIVALSCORE", rData.getRivalScore());
-        editor.commit();
-        super.onPause();
+    	super.onPause();
         Log.i(TAG,"game play onPause");
     }
     
@@ -115,19 +100,6 @@ public class MainActivity extends Activity {
         Log.i(TAG,"this is onSaveInstanceState");
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putSerializable("RUNTIME.DATA", rData);
-    }
-    
-    public void clickPauseOrResume(View view) {
-    	worldView.setPause(!worldView.getPause());
-    	ImageButton pauseButton =(ImageButton) findViewById(R.id.pauseButton);
-    	if (worldView.getPause() == true) { // game is running
-    	    pauseButton.setImageResource(R.drawable.resume);
-    	    rData.setRunning(false);
-    	} else {
-    	    pauseButton.setImageResource(R.drawable.pause);
-    	    rData.setRunning(true);
-            new Thread(worldView).start();
-    	}
     }
 
     public void showRuntimeData(){

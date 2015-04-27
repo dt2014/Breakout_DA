@@ -21,28 +21,29 @@
     <Button
         android:id="@+id/newPlayerButton"
         android:layout_width="200dp"
-        android:layout_height="45dp"
+        android:layout_height="60dp"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
         android:background="@drawable/custom_button"
         android:onClick="clickNewPlayer"
         android:text="@string/new_player" />
 
     <Button
-        android:id="@+id/startNewGameButton"
+        android:id="@+id/startGameButton"
         android:layout_width="200dp"
-        android:layout_height="45dp"
+        android:layout_height="60dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/custom_button"
         android:onClick="clickStartNewGame"
-        android:text="@string/start_new_game" />
+        android:text="@string/start_game" />
 
     <Button
         android:id="@+id/helpButton"
         android:layout_width="200dp"
-        android:layout_height="45dp"
+        android:layout_height="60dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/custom_button"
         android:onClick="clickHelp"
         android:text="@string/help" />
@@ -50,9 +51,9 @@
     <Button
         android:id="@+id/exitButton"
         android:layout_width="200dp"
-        android:layout_height="45dp"
+        android:layout_height="60dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/custom_button"
         android:onClick="clickExit"
         android:text="@string/exit" />

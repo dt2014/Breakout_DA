@@ -11,12 +11,8 @@ package com.unimelb.breakout;
  *          Shuangchao Yin, 612511, shuangchaoy@student.unimelb.edu.au
  */
 
-import java.io.File;
-import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
@@ -47,7 +43,6 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 	private volatile float BarLengthFactor;
 	private volatile SoundPool sp;
     private volatile int collideId;
-    private volatile boolean pause;
 	
 	/*public static boolean pause = false;
 	public boolean connected = false;*/
@@ -62,12 +57,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 	@Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);
-        int height = MeasureSpec.getSize(heightMeasureSpec);
-        if (width > height) {
-            width = height;
-        } else {
-            height = width;
-        }
+        int height = (int) (MeasureSpec.getSize(heightMeasureSpec) * 0.8);
         super.onMeasure(
                 MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                 MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
@@ -77,10 +67,6 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-	    /* 
-	     if(pause==true) 
-            return true;
-	    */
 	    Bar bar = rData.getBar();
 	    if (rData.isRunning()) {
 	        if(event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -254,11 +240,4 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
         Log.d(TAG, "initBallAndBar");
     }
 
-    public boolean getPause() {
-        return pause;
-    }
-
-    public void setPause(boolean pause) {
-        this.pause = pause;
-    }
 }
