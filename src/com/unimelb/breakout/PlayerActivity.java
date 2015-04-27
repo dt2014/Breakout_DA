@@ -46,13 +46,13 @@ public class PlayerActivity extends Activity {
         String name = playerName.getText().toString().trim();
         
         if (name != null && name.matches("[a-zA-Z ]+")) {
-            rData.setName(name);
-            rData.setScore(0);
+            rData.setMyName(name);
+            rData.setMyScore(0);
             SharedPreferences sharedPref = this.
                     getSharedPreferences(MenuActivity.PREF, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("SAVED.NAME", rData.getName());
-            editor.putInt("SAVED.SCORE", rData.getScore());
+            editor.putString("SAVED.MYNAME", rData.getMyName());
+            editor.putInt("SAVED.SCORE", rData.getMyScore());
             editor.commit();
             
             Bundle extras = new Bundle();

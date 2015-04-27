@@ -40,6 +40,9 @@ public class Ball implements Serializable {
     
     private static final Paint paint = new Paint();
     
+    private volatile int ballId;
+    private volatile boolean owned;
+    
     public Ball(float x, float y, float xSpeed, float ySpeed, 
             int screenWidth, int screenHeight, Bar bar) {
         this.x = x;
@@ -67,7 +70,23 @@ public class Ball implements Serializable {
         setYSpeed(10*increase);
     }*/
     
-    public float getX() {
+    public int getBallId() {
+		return ballId;
+	}
+
+	public void setBallId(int ballId) {
+		this.ballId = ballId;
+	}
+
+	public boolean isOwned() {
+		return owned;
+	}
+
+	public void setOwned(boolean owned) {
+		this.owned = owned;
+	}
+
+	public float getX() {
 		return x;
 	}
 

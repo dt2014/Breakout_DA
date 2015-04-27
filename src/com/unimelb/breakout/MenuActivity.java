@@ -63,42 +63,20 @@ public class MenuActivity extends Activity{
 //        downloadTopTenRecords();
         
         welcome = (TextView)findViewById(R.id.welcome);
-        if (rData.getName() != null) {
-            welcome.setText("Welcome " + Utils.nameInitials(rData.getName()));
+        if (rData.getMyName() != null) {
+            welcome.setText("Welcome " + Utils.nameInitials(rData.getMyName()));
         }
 	}
 	
 	public void clickNewPlayer(View view) {
-        if (rData.getName() != null && !rData.isUploaded()) {
-            AlertDialog.Builder builder = new Builder(this);
-            builder.setMessage(R.string.warn_new_player);
-            builder.setCancelable(false);
-            builder.setPositiveButton(R.string.lbl_ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    RuntimeData newRuntimeData = new RuntimeData();
-                    newRuntimeData.setTotalLevels(rData.getTotalLevels());
-                    rData = newRuntimeData;
-                    callActivityForResult(PlayerActivity.class);
-                }
-            });
-            builder.setNegativeButton(R.string.lbl_cancel, null);
-            builder.create().show();
-        } else {
-            callActivityForResult(PlayerActivity.class);
-        }
+		callActivityForResult(PlayerActivity.class);
     }
     
     public void clickStartNewGame(View view) {
         AlertDialog.Builder builder = new Builder(this);
         builder.setCancelable(false);
         
-        String levelFileName = "level.1.map"; // always start from level 1
-        
-//        String path = this.getFilesDir().getPath();
-//        File levelFile = new File(path + levelFileName);
-        
-        if (rData.getName() == null) {
+        if (rData.getMyName() == null) {
             builder.setMessage(R.string.no_player);
             builder.setPositiveButton(R.string.lbl_goto_player, new DialogInterface.OnClickListener() {
                 @Override
@@ -108,45 +86,12 @@ public class MenuActivity extends Activity{
             });
             builder.setNegativeButton(R.string.lbl_cancel, null);
             builder.create().show();
-            
-//        }  else if (!levelFile.exists()) {
-//            Log.d(TAG, "level.1.map exists?" + String.valueOf(levelFile.exists()));
-//            initNewGame();
-//            switchNewDownLevel(levelFile);
-            
-        } else if (rData.getScore() > 0 && !rData.isUploaded()) {
-            builder.setMessage(R.string.warn_new_game);
-            builder.setPositiveButton(R.string.lbl_ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    initNewGame();
-                    loadFilesToGame();
-                }
-            });
-            builder.setNegativeButton(R.string.lbl_cancel, null);
-            builder.create().show();
         } else {
             initNewGame();
             loadFilesToGame();
         }
     }
-	
-	public void clickContinue(View view) {
-	    if (rData.getBricks() != null && !rData.getBricks().isFinished() && 
-	            rData.getLives() != 0) {
-	        callActivityForResult(MainActivity.class);
-	    } else {
-	        Toast.makeText(this, R.string.no_continue, Toast.LENGTH_LONG).show(); 
-	    }
-    }
     
-  	public void clickHighScore(View view) {
-  	    rData.setRecordShow(true);
-  	    RetrieveHighScoreTask task = new RetrieveHighScoreTask(rData);
-  	    task.setContext(this);
-  	    task.execute(rData);
-    }
-  	
     public void clickHelp(View view) {
         Intent intent = new Intent(this, HelpDisplayActivity.class);
         startActivity(intent);
@@ -230,8 +175,8 @@ public class MenuActivity extends Activity{
                 break;
             }
         }
-        if (rData.getName() != null) {
-            welcome.setText("Welcome " + Utils.nameInitials(rData.getName()));
+        if (rData.getMyName() != null) {
+            welcome.setText("Welcome " + Utils.nameInitials(rData.getMyName()));
         }
         Log.d(TAG, "menu: onActivityResult");
     }
@@ -257,18 +202,15 @@ public class MenuActivity extends Activity{
     
     private void setSavedRuntimeData() {
         try {
-            rData.setTotalLevels(3);
             SharedPreferences sharedPref = getSharedPreferences(PREF, Context.MODE_PRIVATE);
-            int level = sharedPref.getInt("SAVED.LEVEL", 0);
-            int lives = sharedPref.getInt("SAVED.LIVES", 3);
-            int score = sharedPref.getInt("SAVED.SCORE", 0);
-            String name = sharedPref.getString("SAVED.NAME", null);
-            boolean uploaded = sharedPref.getBoolean("SAVED.UPLOADED", false);
-            rData.setLevel(level);
-            rData.setLives(lives);
-            rData.setScore(score);
-            rData.setName(name);
-            rData.setUploaded(uploaded);
+            String myName = sharedPref.getString("SAVED.MYNAME", null);
+            String rivalName = sharedPref.getString("SAVED.RIVALNAME", null);
+            int myScore = sharedPref.getInt("SAVED.MYSCORE", 0);
+            int rivalScore = sharedPref.getInt("SAVED.RIVALSCORE", 0);
+            rData.setMyName(myName);
+            rData.setRivalName(rivalName);
+            rData.setMyScore(myScore);
+            rData.setRivalScore(rivalScore);
             String json = sharedPref.getString("SAVED.BRICKS", null);
             if (json != null) {
                 //Log.d(TAG, "json");
@@ -303,19 +245,10 @@ public class MenuActivity extends Activity{
                 rData.setBarLengthFactor(barlengthfactor);
                 rData.setBar(bar);
                 rData.setBall(ball);
-                rData.setNewGame(false);
                 rData.setBallXSpeed(speedx);
                 rData.setBallYSpeed(speedy);
                 rData.setBarXSpeed(barXSpeed);
                 
-
-                /* 27Mar_Daphne: temporary code: to get the local saved high score list*/
-                String records = sharedPref.getString("SAVED.RECORDS", null);
-                if(records != null) {
-                    List<RuntimeData> highScoreList = Utils.buildRecords(records);
-                    highScoreList = Collections.synchronizedList(highScoreList);
-                    rData.setRecords(highScoreList);
-                }
             }
         } catch (Exception e) {
             Log.d(TAG, "something wrong!!!!!!!!!!");
@@ -323,44 +256,9 @@ public class MenuActivity extends Activity{
         }
     }
     
-    private void downloadTopTenRecords() {
-        rData.setRecordShow(false);
-        this.runOnUiThread(new Runnable() {
-            public void run() {
-                RetrieveHighScoreTask task = new RetrieveHighScoreTask(rData);
-                task.setContext(MenuActivity.this);
-                task.execute(rData);
-            }
-        });
-    }
-    
     private void initNewGame() {
-        rData.setLevel(1);
-        rData.setLives(3);
-        rData.setScore(0);
-        rData.setNext(-1);
-        rData.setRank(-1);
-        rData.setUploaded(false);
-    }
-    
-    private void switchNewDownLevel(File levelFile) {
-        this.runOnUiThread(new Runnable() {   // Use the context here
-            public void run() {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(MenuActivity.this);  
-                builder.setTitle("Info");
-                builder.setMessage("There is no level file in local storage. "
-                        + "Do you wish to download one from the server?");
-                builder.setCancelable(false);
-                DownLoadLevelListener positiveButton = new DownLoadLevelListener(true, rData.getLevel());
-                DownLoadLevelListener negativeButton = new DownLoadLevelListener(false, rData.getLevel());
-                
-                builder.setPositiveButton("Yes", positiveButton); 
-                builder.setNegativeButton("No, maybe later", negativeButton);  
-                
-                positiveButton.setContext(MenuActivity.this);//pass the context to the AsyncTask updataLevelActivity
-                builder.show();
-            }
-        });
+    	rData.setMyScore(0);
+    	rData.setRivalScore(0);
     }
     
     public RuntimeData getrData() {

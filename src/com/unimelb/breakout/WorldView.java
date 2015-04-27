@@ -155,52 +155,20 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
             int score = onPlayData.getScore();
             if (score > 0) {
                 sp.play(collideId, 0.5f, 0.5f, 0, 0, 1);
-                rData.setScore(rData.getScore() + score);
-                Utils.insert(rData);
+                rData.setMyScore(rData.getMyScore() + score);
             }
-            rData.setLives(rData.getLives() + onPlayData.getLives());
-            int newLive = 0;
             bar.updateSpeed();
             rData.setBarXSpeed(bar.getBarXSpeed());
             ball.moveBall();
-            newLive = ball.getOnPlayInfo().getLives();
-            rData.setLives(rData.getLives() + newLive);
-            if (newLive < 0 || onPlayData.isClear()) { //one life lost or all bricks are gone
+            if (onPlayData.isClear()) { //all bricks are gone
                 rData.setBallXSpeed(0);
                 rData.setBallYSpeed(0);
                 rData.setBarXSpeed(0);
                 mainActivity.showRuntimeData();
                 rData.setRunning(false);
-                if (rData.getLives() == 0) { // no more lives
-                    if (isInTopTen(rData.getScore())) {
-                        // Prompt to ask player if an entry is requested
-                        mainActivity.askForEntry(rData.getScore(), rData.getName());
-                    } else {
-                        mainActivity.generateGameOverDialog();
-                    }
-                } else if (onPlayData.isClear()) { // bricks are gone
-                    if (rData.getLevel() == rData.getTotalLevels()) {
-                        // Update the final score with remaining livers
-                        int finalScore = rData.getScore() + 1000 * rData.getLives();
-                        rData.setScore(finalScore);
-                        if (isInTopTen(finalScore)) {
-                            mainActivity.askForEntry(rData.getScore(), rData.getName());
-                        } else {
-                            mainActivity.generateGameOverDialog();
-                        }
-                    }
-                    if (rData.getLevel() < rData.getTotalLevels()) {
-                        rData.setLevel(rData.getLevel() + 1);
-                        switchLevel(rData.getLevel());
-                    }
-                } else { // continue playing with the remaining lives
-                    initBallAndBar();
-                    mainActivity.runOnUiThread(new Runnable() {     
-                        public void run() {
-                            mainActivity.displayReadyScreen();
-                            drawGame();
-                        }});
-                }
+                
+                //TODO: Inform winning or game over
+                mainActivity.generateGameOverDialog();
             }   
         } finally {
             lock.unlock();
@@ -227,20 +195,13 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
         BarLengthFactor = rData.getBarLengthFactor();
         sp = mainActivity.getSp();
         collideId = mainActivity.getCollideId();
-        if (rData.getLives() > 0) {
-            this.surfaceHolder = surfaceHolder;
-            paint = new Paint();
-            paint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
-            if (rData.isNewGame()) {
-                Log.d(TAG, "worldView surfaceCreated: isNewGame");
-                initBallAndBar();
-                rData.getBricks().validate(gameViewWidth, rData.getBar().getY());
-                rData.setNewGame(false);
-            } else {
-                rData.getBricks().countBricks(gameViewWidth, rData.getBar().getY());
-            }
-            drawGame();
-        }
+        
+        this.surfaceHolder = surfaceHolder;
+        paint = new Paint();
+        paint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
+        initBallAndBar();
+        rData.getBricks().validate(gameViewWidth, rData.getBar().getY());
+        drawGame();
         Log.d(TAG,"surfaceCreated");
 	}
 
@@ -257,10 +218,10 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt("SAVED.WIDTH", rData.getGameViewWidth());
         editor.putInt("SAVED.HEIGHT", rData.getGameViewHeight());
-        editor.putInt("SAVED.SCORE", rData.getScore());
-        editor.putInt("SAVED.LIVES", rData.getLives());
-        editor.putString("SAVED.NAME", rData.getName());
-        editor.putBoolean("SAVED.UPLOADED", rData.isUploaded());
+        editor.putString("SAVED.MyNAME", rData.getMyName());
+        editor.putString("SAVED.RIVALNAME", rData.getRivalName());
+        editor.putInt("SAVED.MYSCORE", rData.getMyScore());
+        editor.putInt("SAVED.RIVALSCORE", rData.getRivalScore());
         if (rData.getBricks() == null || rData.getBricks().getAliveBrickCount() == 0) {
             editor.putString("SAVED.BRICKS", null);
         } else {
@@ -283,55 +244,6 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
         }
         editor.commit();
 	}
-	
-    public void switchLevel(int level) {
-//      String levelFileName = "level."+ level +".map";
-//    	String path = getContext().getFilesDir().getPath();
-//	    File levelFile = new File(path + levelFileName);
-//	    if(levelFile.exists()) {
-	        mainActivity.runOnUiThread(new Runnable() {     
-	            public void run() {
-	                final LoadFilesTask task = new LoadFilesTask(mainActivity);
-	                task.execute(rData);
-	            }});
-//	    }
-	    //else ask the user to download the new maps./
-//	    else {  
-//	    	switchNewDownLevel(levelFile);
-//	    }
-    }
-
-    private void switchNewDownLevel(File levelFile) {
-        mainActivity.runOnUiThread(new Runnable() {   // Use the context here
-            public void run() {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);  
-                builder.setTitle("Info");
-                builder.setMessage("Do you want to download new level from the server?");
-                builder.setCancelable(false);
-                DownLoadLevelListener positiveButton = new DownLoadLevelListener(true, rData.getLevel());
-                DownLoadLevelListener negativeButton = new DownLoadLevelListener(false, rData.getLevel());
-                
-                builder.setPositiveButton("Yes", positiveButton); 
-                builder.setNegativeButton("No, maybe later", negativeButton);  
-                
-                positiveButton.setContext(mainActivity);//pass the context to the AsyncTask updataLevelActivity
-                builder.show();
-            }
-        });
-    }
-
-    private boolean isInTopTen(int scores) {
-        List<RuntimeData> highScoreList = rData.getRecords();
-        if (highScoreList != null) {
-            for (int i = 0; i < highScoreList.size(); i++) {
-                if (scores > highScoreList.get(i).getScore()) {
-                    return true;
-                }
-            }
-            return false;
-        } else
-            return true;
-    }
 
     private void initBallAndBar() {
         Bar bar = new Bar((1-BarLengthFactor)*gameViewWidth/2, gameViewHeight*0.9F, 

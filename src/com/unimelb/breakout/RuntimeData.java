@@ -18,9 +18,6 @@ public class RuntimeData implements Serializable {
     private static final long serialVersionUID = 8666060483413961394L;
     
     private volatile boolean running;
-    private volatile boolean newGame;
-    private volatile boolean uploaded;
-    private volatile boolean recordShow;
     
     private volatile int gameViewWidth;
     private volatile int gameViewHeight;
@@ -42,16 +39,12 @@ public class RuntimeData implements Serializable {
     private volatile float barXSpeed;
     
     private volatile Bricks bricks;
+
+    private volatile String myName;
+    private volatile String rivalName =" ";
     
-    private volatile int score;
-    private volatile int next = -1;
-    private volatile int rank = -1;
-    private volatile int level;
-    private volatile int totalLevels = 3;
-    private volatile int lives;
-    private volatile String name;
-    
-    private volatile List<RuntimeData> records;
+    private volatile int myScore;
+    private volatile int rivalScore;
     
     public RuntimeData() { }
     
@@ -61,30 +54,6 @@ public class RuntimeData implements Serializable {
     
     public void setRunning(boolean running) {
         this.running = running;
-    }
-
-    public boolean isNewGame() {
-        return newGame;
-    }
-
-    public void setNewGame(boolean newGame) {
-        this.newGame = newGame;
-    }
-    
-    public boolean isUploaded() {
-        return uploaded;
-    }
-
-    public void setUploaded(boolean uploaded) {
-        this.uploaded = uploaded;
-    }
-
-    public boolean isRecordShow() {
-        return recordShow;
-    }
-
-    public void setRecordShow(boolean recordShow) {
-        this.recordShow = recordShow;
     }
     
     public int getGameViewWidth() {
@@ -127,22 +96,23 @@ public class RuntimeData implements Serializable {
         this.bricks = bricks;
     }
    
-    public int getScore() {
-        return score;
+    public int getMyScore() {
+        return myScore;
     }
 
-    public void setScore(int score) {
-        this.score = score;
+    public void setMyScore(int myScore) {
+        this.myScore = myScore;
     }
 
-    public int getLives() {
-        return lives;
-    }
+    public int getRivalScore() {
+		return rivalScore;
+	}
 
-    public void setLives(int lives) {
-        this.lives = lives;
-    }
-    public float getBallx() {
+	public void setRivalScore(int rivalScore) {
+		this.rivalScore = rivalScore;
+	}
+
+	public float getBallx() {
         return ballx;
     }
 
@@ -230,52 +200,20 @@ public class RuntimeData implements Serializable {
         this.barXSpeed = barXSpeed;
     }
 
-    public int getLevel() {
-        return level;
+    public String getMyName() {
+        return myName;
     }
 
-    public void setLevel(int level) {
-        this.level = level;
+    public void setMyName(String myName) {
+        this.myName = myName;
     }
 
+    public String getRivalName() {
+		return rivalName;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public void setRivalName(String rivalName) {
+		this.rivalName = rivalName;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getRank() {
-        return rank;
-    }
-
-    public void setRank(int rank) {
-        this.rank = rank;
-    }
-
-    public List<RuntimeData> getRecords() {
-        return records;
-    }
-
-    public void setRecords(List<RuntimeData> records) {
-        this.records = records;
-    }
-
-    public int getTotalLevels() {
-        return totalLevels;
-    }
-
-    public void setTotalLevels(int totalLevels) {
-        this.totalLevels = totalLevels;
-    }
-
-    public int getNext() {
-        return next;
-    }
-
-    public void setNext(int next) {
-        this.next = next;
-    }
 }

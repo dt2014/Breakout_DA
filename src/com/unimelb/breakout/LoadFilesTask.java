@@ -35,7 +35,6 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
     private  int steps = 0;
     private boolean finished;
     private Context context;
-    private int updateCounter = 0;
     
     public LoadFilesTask (Context context) {
         this.context = context;
@@ -58,15 +57,12 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
     @Override
     protected Boolean doInBackground(RuntimeData... params) {
             rData = params[0];
-            StringBuilder bs = new StringBuilder();
-            bs.append("level.").append(rData.getLevel()).append(".map");
-            Log.d(TAG, bs.toString());
-            String fileName = bs.toString();
+            String fileName = "map.json";
             String json = null;
             InputStream inputStream = null;
             try {
                 //Thread.sleep(2000);
-                publishProgress("Accessing Level File");
+                publishProgress("Accessing Game Map");
                 
                 /* 27Mar_Daphne: Temporarily comment out code. Change the location of the map files to 'assets'
                 File levelFile = new File(context.getFilesDir().getPath() + fileName);
@@ -89,7 +85,6 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
                     bricks.initBricks(brickData);
                     rData.setBricks(bricks);
                     //Thread.sleep(1000);
-                    rData.setNewGame(true);
                     
 //                    savePreferenceData();
                     
@@ -127,25 +122,11 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
     @Override
     public void onPostExecute(Boolean result) {
         if (! isCancelled() && result) {
-//            Toast.makeText(context, "Level file loaded sucessfully!", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, "Map file loaded sucessfully!", Toast.LENGTH_SHORT).show();
             if (context.getClass() == MenuActivity.class) {
                 ((MenuActivity) context).callActivityForResult(MainActivity.class);
-            } else { //context.getClass() == MainActivity.class) 
-//                ((MainActivity) context).runOnUiThread(new Runnable() {     
-//                    public void run() {
-//                        ((MainActivity) context).displayReadyScreen();
-//                    }});
-                Bundle extras = new Bundle();
-                extras.putSerializable("RUNTIME.DATA", rData);
-                ((MainActivity) context).onCreate(extras);
-                Log.d(TAG,"LoadFilesTask: onPostExecute");
-//                Bundle extras = new Bundle();
-//                extras.putSerializable("RUNTIME.DATA", rData);
-//                Intent intent = new Intent();
-//                intent.setClass(context, MainActivity.class);
-//                intent.putExtras(extras);
-//                context.startActivity(intent);
-//                ((Activity) context).finish();
+            } else { 
+            	showError();
             }
         } else if (! isCancelled()) {
             showError();
@@ -190,7 +171,7 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
         ((Activity) context).runOnUiThread(new Runnable() {
             public void run() {
                 AlertDialog.Builder builder = new Builder(context);
-                builder.setMessage(R.string.err_load_level);
+                builder.setMessage(R.string.err_load_map);
                 builder.setCancelable(true);
                 builder.setPositiveButton(R.string.lbl_back, new DialogInterface.OnClickListener() {
                     @Override

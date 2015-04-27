@@ -24,36 +24,7 @@ import com.google.gson.reflect.TypeToken;
 
 public final class Utils {
 
-    private Utils() {}    
-    
-    public static final void insert(RuntimeData rData) {
-        // Log.d("insert", "called");
-        int curScore = rData.getScore();
-        int newRank = -1;
-        int newNext = -1;
-        List<RuntimeData> records = rData.getRecords();
-        if (records != null) {
-            int size = records.size();
-            int i = 0;
-            
-            for (; i < size; ++i) {
-                int topScore = records.get(i).getScore();
-                if (curScore > topScore) {
-                    break;
-                }
-            }
-            if (i < size) {
-                newRank = i + 1;
-                if (i > 0) {
-                    newNext = records.get(i - 1).getScore();
-                } else { //i == 0
-                    newNext = curScore;
-                }
-            } 
-        } 
-        rData.setRank(newRank);
-        rData.setNext(newNext);
-    }
+    private Utils() {}
 
     public static final List<Brick> extraLevelData(String json, RuntimeData rData) {
         Gson gson = new Gson();
@@ -92,22 +63,4 @@ public final class Utils {
         }
         return nameInitials.toString().toUpperCase();
     }
-    
-    /* 27Mar_Daphne: temporary code for 'buildRecords' and 'saveRecords' */
-    @SuppressWarnings("unchecked")
-    public static final List<RuntimeData> buildRecords(String json) {
-        Log.i("Utils", json);
-        Gson gson = new Gson();
-        Type listType = new TypeToken<List<RuntimeData>>() {}.getType();
-        List<RuntimeData> records = (List<RuntimeData>) gson.fromJson(json, listType);
-        return records;
-    }
-    
-    public static final String saveRecords(List<RuntimeData> records) {
-        Gson gson = new Gson();
-        String json = gson.toJson(records);
-//        Log.i("Utils", json);
-        return json;
-    }
-    
 }

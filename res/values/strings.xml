@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Breakout2</string>
+    <string name="app_name">Breakout_DA</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
     <string name="result"></string>
     <string name="score"></string>
     <string name="menu">menu</string>
@@ -17,21 +16,15 @@
 	<string name="lbl_cancel">Cancel</string>
 	<string name="warn_new_player">Warning: all data of current player will be cleared.</string>
 	<string name="loading_text">Loading files&#8230;</string>
-	<string name="err_load_level">Error occurred when loading level files. Please try again Later.</string>
+	<string name="err_load_map">Error occurred when loading map file. Please try again Later.</string>
     <string name="exit">Exit</string>
     <string name="start_new_game">Start New Game</string>
     <string name="no_player">Please enter a player name before starting a new game.</string>
     <string name="warn_new_game">Warning: your current score/lives/level data will be cleared.</string>
     <string name="lbl_goto_player">Enter Player Name</string>
-    <string name="menu_continue">Continue</string>
     <string name="no_continue">There is no game on pause. Please select a level or a new game.</string>
-    <string name="update_level">Update Level</string>
-    <string name="title_score_entry">   Well Done! </string>
-    <string name="msg_score_entry">Your high score is top 10. Would you like to make an entry in High Score List?</string>
     <string name="btn_yes">Yes</string>
     <string name="btn_no">No</string>
-    <string name="leader_board">Leader Board</string>
-    <string name="select_level">Select Game Level</string>
     <string name="lbl_list_rtn">Return</string>
     <string name="message_no_data">No data has been downloaded yet</string>
     <string name="help">Help</string>
@@ -44,13 +37,8 @@ Contact us for any suggestions improve the game: Chenchao Ye (chenchaoy@student.
 Enjoy the game! :)\n\n</string>
 	<string name="lbl_back">Back</string>
     <string name="lbl_score">Score:</string>
-    <string name="lbl_next">Next:</string>
-    <string name="lbl_rank">Rank:</string>
-    <string name="lbl_level">Level:</string>
-    <string name="lbl_lives">Lives:</string>
     <string name="lbl_player">Player:</string>
     <string name="txt_na">-</string>
-    <string name="downloadText">Downloading top 10 score records</string>
     <string name="pause">Pause</string>
     <string name="tip_ready">Ready? Tap to start.</string>
     <string name="go">GO!</string>

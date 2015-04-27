@@ -42,10 +42,6 @@
 		    android:name="com.unimelb.breakout.HelpDisplayActivity"
 			android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
         </activity>
-        <activity 
-		    android:name="com.unimelb.breakout.HighScoreListActivity"
-			android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
-        </activity>
     </application>
 
 </manifest>
