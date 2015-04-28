@@ -1,14 +1,13 @@
 package com.unimelb.breakout;
 
 /**
- * COMP90018 Mobile Computing System Programming, Project Breakout Game
- * Semester 2, 2014
- * Group 25
+ * COMP90020 Distributed Algorithms
+ * Semester 1, 2015
+ * Group 4
  * Students: (Name, StudentNumber, Email)
- *          Chenchao Ye, 633657, chenchaoy@student.unimelb.edu.au
- *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
+ *          Bumsik Ahn, 621389, bahn@student.unimelb.edu.au
  *          Jiajie Li, 631482, jiajiel@student.unimelb.edu.au
- *          Shuangchao Yin, 612511, shuangchaoy@student.unimelb.edu.au
+ *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
  */
 
 
@@ -29,7 +28,7 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
     private volatile RuntimeData rData;
     
     private ProgressDialog pg;
-    private  int steps = 0;
+    private int steps = 0;
     private Context context;
     
     public LoadFilesTask (Context context) {
@@ -68,7 +67,7 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
                 json = new String(buffer, "UTF-8");
                 publishProgress("Retriving Data");
                 //Thread.sleep(2000);
-                Log.d(TAG,json);
+//                Log.d(TAG,json);
                 if (json != null) {
                     List<Brick> brickData = Utils.extraMapData(json, rData);
                     Bricks bricks = new Bricks(rData.getGameViewWidth(), 
@@ -76,7 +75,6 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
                     bricks.initBricks(brickData);
                     rData.setBricks(bricks);
                     //Thread.sleep(1000);
-                    
                     publishProgress("Retriving Done");
                     return Boolean.TRUE;
                 }

@@ -1,14 +1,13 @@
 package com.unimelb.breakout;
 
 /**
- * COMP90018 Mobile Computing System Programming, Project Breakout Game
- * Semester 2, 2014
- * Group 25
+ * COMP90020 Distributed Algorithms
+ * Semester 1, 2015
+ * Group 4
  * Students: (Name, StudentNumber, Email)
- *          Chenchao Ye, 633657, chenchaoy@student.unimelb.edu.au
- *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
+ *          Bumsik Ahn, 621389, bahn@student.unimelb.edu.au
  *          Jiajie Li, 631482, jiajiel@student.unimelb.edu.au
- *          Shuangchao Yin, 612511, shuangchaoy@student.unimelb.edu.au
+ *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
  */
 
 import java.util.concurrent.locks.Lock;
@@ -36,15 +35,12 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 	private volatile int gameViewWidth;
 	private volatile int gameViewHeight;
 	private MainActivity mainActivity;
-	private volatile float initBallX;
-	private volatile float initBallY;
-	private volatile float initBallXSpeed;
-	private volatile float initBallYSpeed;
+	private volatile float ballInitX;
+	private volatile float ballInitY;
+	private volatile float ballInitXSpeed;
+	private volatile float ballInitYSpeed;
 	private volatile SoundPool sp;
     private volatile int collideId;
-	
-	/*public static boolean pause = false;
-	public boolean connected = false;*/
 	
 	public WorldView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -177,10 +173,10 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
         rData = mainActivity.getrData();
         rData.setGameViewWidth(gameViewWidth);
         rData.setGameViewHeight(gameViewHeight);
-        initBallX = rData.getInitBallX() * gameViewWidth;
-        initBallY = rData.getInitBallY() * gameViewHeight;
-        initBallXSpeed = rData.getInitBallXSpeed() * gameViewWidth;
-        initBallYSpeed = rData.getInitBallYSpeed() * gameViewHeight;
+        ballInitX = rData.getInitBallX() * gameViewWidth;
+        ballInitY = rData.getInitBallY() * gameViewHeight;
+        ballInitXSpeed = rData.getInitBallXSpeed() * gameViewWidth;
+        ballInitYSpeed = rData.getInitBallYSpeed() * gameViewHeight;
         sp = mainActivity.getSp();
         collideId = mainActivity.getCollideId();
         
@@ -188,7 +184,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
         paint = new Paint();
         paint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
         initBallAndBar();
-        rData.getBricks().validate(gameViewWidth, rData.getMyBar().getY());
+        rData.getBricks().validate(gameViewWidth, rData.getMyBar().getBarY());
         drawGame();
         Log.d(TAG,"surfaceCreated");
 	}
@@ -219,8 +215,8 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
             editor.putFloat("SAVED.BALLY", ball.getY());
             editor.putFloat("SAVED.SPEEDX", ball.getXSpeed());
             editor.putFloat("SAVED.SPEEDY", ball.getYSpeed());
-            editor.putFloat("SAVED.BARX", bar.getX());
-            editor.putFloat("SAVED.BARY", bar.getY());
+            editor.putFloat("SAVED.BARX", bar.getBarX());
+            editor.putFloat("SAVED.BARY", bar.getBarY());
             editor.putFloat("SAVED.BARXSPEED", bar.getBarXSpeed());
             String json = Utils.saveBricks(rData.getBricks());
             editor.putString("SAVED.BRICKS", json);
@@ -233,15 +229,21 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 	}
 
     private void initBallAndBar() {
-    	float initBarX = (1 - Bar.lengthFactor) * gameViewWidth / 2;
-        Bar myBar = new Bar(initBarX, gameViewHeight * 0.95F, gameViewWidth, gameViewHeight);
-        Ball ball1 = new Ball(initBallX, initBallY, 
-        		initBallXSpeed, initBallYSpeed, gameViewWidth, gameViewHeight, myBar);
+    	float barInitX = Constants.BAR_INIT_X_FACTOR * gameViewWidth;
+    	float myBarY = Constants.MY_BAR_Y_FACTOR * gameViewHeight;
+    	float rivalBarY = Constants.RIVAL_BAR_Y_FACTOR * gameViewHeight;
+    	ballInitX = Constants.BALL_INIT_X_FACTOR * gameViewWidth;
+    	ballInitY = Constants.BALL_INIT_Y_FACTOR * gameViewHeight;
+    	ballInitXSpeed = Constants.BALL_INIT_XSPEED_FACTOR * gameViewWidth;
+    	ballInitYSpeed = Constants.BALL_INIT_YSPEED_FACTOR * gameViewHeight;
+    	
+        Bar myBar = new Bar(barInitX, myBarY, gameViewWidth, gameViewHeight);
         rData.setMyBar(myBar);
+        Ball ball1 = new Ball(ballInitX, ballInitY, ballInitXSpeed, ballInitYSpeed, gameViewWidth, gameViewHeight, myBar, true);
         rData.setBall1(ball1);
-        Bar rivalBar = new Bar(initBarX, gameViewHeight * (0.05F - Bar.heightFactor), gameViewWidth, gameViewHeight);
-        Ball ball2 = new Ball(gameViewWidth - initBallX, gameViewHeight - initBallY, 
-        		-initBallXSpeed, -initBallYSpeed, gameViewWidth, gameViewHeight, rivalBar);
+        
+        Bar rivalBar = new Bar(barInitX, rivalBarY, gameViewWidth, gameViewHeight);
+        Ball ball2 = new Ball(gameViewWidth - ballInitX, gameViewHeight - ballInitY, -ballInitXSpeed, -ballInitYSpeed, gameViewWidth, gameViewHeight, myBar, false);
         rData.setRivalBar(rivalBar);
         rData.setBall2(ball2);
         Log.d(TAG, "initBallAndBar");

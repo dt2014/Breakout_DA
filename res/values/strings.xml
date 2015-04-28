@@ -17,6 +17,7 @@
 	<string name="warn_new_player">Warning: all data of current player will be cleared.</string>
 	<string name="loading_text">Loading files&#8230;</string>
 	<string name="err_load_map">Error occurred when loading map file. Please try again Later.</string>
+	<string name="err_init_game">Error occurred when connecting server. Please try again Later.</string>
     <string name="exit">Exit</string>
     <string name="start_game">Start Game</string>
     <string name="no_player">Please enter a player name before starting a new game.</string>
@@ -28,13 +29,7 @@
     <string name="lbl_list_rtn">Return</string>
     <string name="message_no_data">No data has been downloaded yet</string>
     <string name="help">Help</string>
-    <string name="help_content">Before starting a new game, please enter your name. To do this, please press the Player button.\n\n 
-If it is the first time you start a new game after installation, you will be asked if you would like to download the game level data from the server to your local storage. Once the level file is downloaded, you are ready to enjoy the game, so please make sure you have the access to the internet for the downloading.\n\n
-After loading the level data, you will see a ready screen with a number of bricks, a ball and a paddle in a frame with black color background. The ball will move around immediately on your first touch on the ready screen. Your target is to break all bricks! A brick could be broken on a hit of the ball. You gain 100 marks by removing one brick. There are bricks in special color for breaking which you gain extra 100 marks and one game life. Move the paddle so as to catch and bounce the ball. If the ball lands on the bottom side of the frame instead of the paddle, one game life is lost. Your score, remaining game lives, the rank of your high score if in top 10, and the next score you have to beat to move up one rank, are updated simultaneously when you are breaking bricks. If you want to pause the game for a while, you may press the button on the up right corner of the screen.Or you may press the back key of your phone to return to the menu, and come back to the paused game by pressing the continue button.\n\n
-When all the bricks are removed, the game advances to the next level. Again, if the level data of the next level is not downloaded in your phone, you will be asked to confirm the download. The game will be over if all game lives are lost or all bricks of the highest level are removed. If you have remaining game lives at the end of the game, those lives are converted to marks (1 life as 1000 marks) and added to your final score. If your final score is in top ten, you will be asked if you would like to make an entry to the top ten high score list.\n\n
-Once you have downloaded the level data in your phone, you could select to play the game from any level by pressing the Select Game Level button. You could also choose to download all data of game levels by pressing the Update Level button. You will see the current top ten high scores by pressing the Leader Board button.\n\n
-Contact us for any suggestions improve the game: Chenchao Ye (chenchaoy@student.unimelb.edu.au), Fengmin Deng (dengf@student.unimelb.edu.au), Jiajie Li (jiajiel@student.unimelb.edu.au) and Shuangchao Yin (shuangchaoy@student.unimelb.edu.au). Thank you.\n\n
-Enjoy the game! :)\n\n</string>
+    <string name="help_content">The content is under construction&#8230;\n\n</string>
 	<string name="lbl_back">Back</string>
     <string name="lbl_score">Score:</string>
     <string name="lbl_player">Player:</string>

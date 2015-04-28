@@ -1,17 +1,15 @@
 package com.unimelb.breakout;
 
 /**
- * COMP90018 Mobile Computing System Programming, Project Breakout Game
- * Semester 2, 2014
- * Group 25
+ * COMP90020 Distributed Algorithms
+ * Semester 1, 2015
+ * Group 4
  * Students: (Name, StudentNumber, Email)
- *          Chenchao Ye, 633657, chenchaoy@student.unimelb.edu.au
- *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
+ *          Bumsik Ahn, 621389, bahn@student.unimelb.edu.au
  *          Jiajie Li, 631482, jiajiel@student.unimelb.edu.au
- *          Shuangchao Yin, 612511, shuangchaoy@student.unimelb.edu.au
+ *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
  */
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
@@ -83,12 +81,11 @@ public class MenuActivity extends Activity{
             builder.setNegativeButton(R.string.lbl_cancel, null);
             builder.create().show();
         } else {
-            initNewGame();
-            loadFilesToGame();
+        	initGameAtServer();
         }
     }
-    
-    public void clickHelp(View view) {
+
+	public void clickHelp(View view) {
         Intent intent = new Intent(this, HelpDisplayActivity.class);
         startActivity(intent);
   	}
@@ -135,8 +132,11 @@ public class MenuActivity extends Activity{
         super.onPause();
     }
     
-    private void loadFilesToGame() {
-        final LoadFilesTask task = new LoadFilesTask(this);
+    /*
+     * send my name to server to initiate the game and get back rival_name & map_side
+     */
+    private void initGameAtServer() {
+    	final InitGameAtServerTask task = new InitGameAtServerTask(this);
         task.execute(rData);
         new Thread() {
             @Override
@@ -149,7 +149,8 @@ public class MenuActivity extends Activity{
                 }
             }
         }.start();
-    }
+	}
+    
     
     public void callActivityForResult(Class<?> activityClass) {
         Bundle extras = new Bundle();
@@ -200,59 +201,11 @@ public class MenuActivity extends Activity{
         try {
             SharedPreferences sharedPref = getSharedPreferences(PREF, Context.MODE_PRIVATE);
             String myName = sharedPref.getString("SAVED.MYNAME", null);
-            String rivalName = sharedPref.getString("SAVED.RIVALNAME", null);
-            int myScore = sharedPref.getInt("SAVED.MYSCORE", 0);
-            int rivalScore = sharedPref.getInt("SAVED.RIVALSCORE", 0);
             rData.setMyName(myName);
-            rData.setRivalName(rivalName);
-            rData.setMyScore(myScore);
-            rData.setRivalScore(rivalScore);
-            String json = sharedPref.getString("SAVED.BRICKS", null);
-            if (json != null) {
-                //Log.d(TAG, "json");
-                int gameViewWidth = sharedPref.getInt("SAVED.WIDTH", 0);
-                int gameViewHeight = sharedPref.getInt("SAVED.HEIGHT", 0);
-                float initballx = sharedPref.getFloat("SAVED.INITBALLX", 0.0F);
-                float initbally = sharedPref.getFloat("SAVED.INITBALLY", 0.0F);
-                float initspeedx = sharedPref.getFloat("SAVED.INITSPEEDX", 0.0F);
-                float initspeedy = sharedPref.getFloat("SAVED.INITSPEEDY", 0.0F);
-
-                float ballx = sharedPref.getFloat("SAVED.BALLX", 0.0F);
-                float bally = sharedPref.getFloat("SAVED.BALLY", 0.0F);
-                float speedx = sharedPref.getFloat("SAVED.SPEEDX", 0.0F);
-                float speedy = sharedPref.getFloat("SAVED.SPEEDY", 0.0F);
-                float barx = sharedPref.getFloat("SAVED.BARX", 0.0F);
-                float bary = sharedPref.getFloat("SAVED.BARY", 0.0F);
-                float barXSpeed = sharedPref.getFloat("SAVED.BARXSPEED", 0.0F);
-                List<Brick> brickData = Utils.buildBricks(json);
-                Bricks bricks = new Bricks(gameViewWidth, gameViewHeight);
-                bricks.initBricks(brickData);
-                bricks.setViewSize(gameViewWidth, gameViewHeight);
-                rData.setBricks(bricks);
-                Bar bar= new Bar(barx, bary, gameViewWidth, gameViewHeight);
-                rData.setMyBar(bar);
-                Ball ball = new Ball(ballx, bally, speedx, speedy, 
-                        gameViewWidth, gameViewHeight, bar);
-                rData.setInitBallX(initballx);
-                rData.setInitBallY(initbally);
-                rData.setInitBallXSpeed(initspeedx);
-                rData.setInitBallYSpeed(initspeedy);
-                rData.setMyBar(bar);
-                rData.setBall1(ball);
-                rData.setBall1XSpeed(speedx);
-                rData.setBall1YSpeed(speedy);
-                rData.setMyBarXSpeed(barXSpeed);
-                
-            }
         } catch (Exception e) {
             Log.d(TAG, "something wrong!!!!!!!!!!");
             e.printStackTrace();
         }
-    }
-    
-    private void initNewGame() {
-    	rData.setMyScore(0);
-    	rData.setRivalScore(0);
     }
     
     public RuntimeData getrData() {

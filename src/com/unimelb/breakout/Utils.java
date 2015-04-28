@@ -1,14 +1,13 @@
 package com.unimelb.breakout;
 
 /**
- * COMP90018 Mobile Computing System Programming, Project Breakout Game
- * Semester 2, 2014
- * Group 25
+ * COMP90020 Distributed Algorithms
+ * Semester 1, 2015
+ * Group 4
  * Students: (Name, StudentNumber, Email)
- *          Chenchao Ye, 633657, chenchaoy@student.unimelb.edu.au
- *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
+ *          Bumsik Ahn, 621389, bahn@student.unimelb.edu.au
  *          Jiajie Li, 631482, jiajiel@student.unimelb.edu.au
- *          Shuangchao Yin, 612511, shuangchaoy@student.unimelb.edu.au
+ *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
  */
 
 
@@ -27,11 +26,6 @@ public final class Utils {
     public static final List<Brick> extraMapData(String json, RuntimeData rData) {
         Gson gson = new Gson();
         JsonObject jobj = gson.fromJson(json, JsonObject.class);
-        
-        rData.setInitBallX(gson.fromJson(jobj.get("initballx"), float.class));
-        rData.setInitBallY(gson.fromJson(jobj.get("initbally"), float.class));
-        rData.setInitBallXSpeed(gson.fromJson(jobj.get("initballxspeed"), float.class));
-        rData.setInitBallYSpeed(gson.fromJson(jobj.get("initballyspeed"), float.class));
         
         Type bricksType = new TypeToken<ArrayList<Brick>>() {}.getType();
         return gson.fromJson(jobj.get("bricks"), bricksType);

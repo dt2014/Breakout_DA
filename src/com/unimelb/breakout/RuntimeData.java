@@ -1,20 +1,21 @@
 package com.unimelb.breakout;
 
 /**
- * COMP90018 Mobile Computing System Programming, Project Breakout Game
- * Semester 2, 2014
- * Group 25
+ * COMP90020 Distributed Algorithms
+ * Semester 1, 2015
+ * Group 4
  * Students: (Name, StudentNumber, Email)
- *          Chenchao Ye, 633657, chenchaoy@student.unimelb.edu.au
- *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
+ *          Bumsik Ahn, 621389, bahn@student.unimelb.edu.au
  *          Jiajie Li, 631482, jiajiel@student.unimelb.edu.au
- *          Shuangchao Yin, 612511, shuangchaoy@student.unimelb.edu.au
+ *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
  */
 
 import java.io.Serializable;
 
 public class RuntimeData implements Serializable {    
     private static final long serialVersionUID = 8666060483413961394L;
+    
+    private volatile String mapSide;
     
     private volatile boolean running;
     
@@ -53,8 +54,16 @@ public class RuntimeData implements Serializable {
     
     private volatile int myScore;
     private volatile int rivalScore;
+
+	public RuntimeData() { }
     
-    public RuntimeData() { }
+    public String getMapSide() {
+		return mapSide;
+	}
+
+	public void setMapSide(String mapSide) {
+		this.mapSide = mapSide;
+	}
     
     public boolean isRunning() {
         return running;

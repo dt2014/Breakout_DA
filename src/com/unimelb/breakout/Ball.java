@@ -1,14 +1,13 @@
 package com.unimelb.breakout;
 
 /**
- * COMP90018 Mobile Computing System Programming, Project Breakout Game
- * Semester 2, 2014
- * Group 25
+ * COMP90020 Distributed Algorithms
+ * Semester 1, 2015
+ * Group 4
  * Students: (Name, StudentNumber, Email)
- *          Chenchao Ye, 633657, chenchaoy@student.unimelb.edu.au
- *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
+ *          Bumsik Ahn, 621389, bahn@student.unimelb.edu.au
  *          Jiajie Li, 631482, jiajiel@student.unimelb.edu.au
- *          Shuangchao Yin, 612511, shuangchaoy@student.unimelb.edu.au
+ *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
  */
 
 import java.io.Serializable;
@@ -19,12 +18,12 @@ import android.graphics.Paint;
 public class Ball implements Serializable {
     private static final long serialVersionUID = -1002240139201271969L;
 
-    private static float ballRadius = 10;
+    private volatile float ballRadius;
    
-    private volatile float x;
-    private volatile float y;
-    private volatile float xSpeed;
-    private volatile float ySpeed;
+    private volatile float ballX;
+    private volatile float ballY;
+    private volatile float ballXSpeed;
+    private volatile float ballYSpeed;
     
     private volatile int screenWidth;
     private volatile int screenHeight;
@@ -34,36 +33,27 @@ public class Ball implements Serializable {
     private volatile OnPlayData onPlayData;
     
     private static final Paint paint = new Paint();
+    private volatile int ballColor;
     
     private volatile int ballId;
     private volatile boolean owned;
     
-    public Ball(float x, float y, float xSpeed, float ySpeed, 
-            int screenWidth, int screenHeight, Bar bar) {
-        this.x = x;
-        this.y = y;
-        this.xSpeed = xSpeed;
-        this.ySpeed = ySpeed;
+    public Ball(float ballX, float ballY, float ballXSpeed, float ballYSpeed, int screenWidth, int screenHeight, Bar bar, boolean owned) {
+        this.ballX = ballX;
+        this.ballY = ballY;
+        this.ballXSpeed = ballXSpeed;
+        this.ballYSpeed = ballYSpeed;
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         this.bar = bar;
+        this.owned = owned;
         
-        ballRadius = (float) (screenWidth/72.0);
+        ballRadius = (float) (screenWidth * Constants.BALL_RADIUS_FACTOR);
 
         paint.setAntiAlias(true);
-        paint.setColor(Color.WHITE);
+        ballColor = owned ? Color.YELLOW : Color.WHITE;
+        paint.setColor(ballColor);
     }
-    
-    /*
-    public void resetCoordsAndSpeed() { 
-    	this.x = (x/screenWidth)*this.screenWidth;
-        this.y = ballRadius;
-        setX(screenWidth/2);
-        setY(5*screenHeight/10);
-        float increase = (float) (1 + getLevel()*0.1);
-        setXSpeed(5*increase);
-        setYSpeed(10*increase);
-    }*/
     
     public int getBallId() {
 		return ballId;
@@ -82,38 +72,38 @@ public class Ball implements Serializable {
 	}
 
 	public float getX() {
-		return x;
+		return ballX;
 	}
 
 	public void setX(float x) {
-		this.x = x;
+		this.ballX = x;
 	}
 
     public float getY() {
-		return y;
+		return ballY;
 	}
 
 	public void setY(float y) {
-		this.y = y;
+		this.ballY = y;
 	}
 
 	public float getXSpeed() {
-		return xSpeed;
+		return ballXSpeed;
 	}
 
 	public void setXSpeed(float xSpeed) {
-		this.xSpeed = xSpeed;
+		this.ballXSpeed = xSpeed;
 	}
 
 	public float getYSpeed() {
-		return ySpeed;
+		return ballYSpeed;
 	}
 
 	public void setYSpeed(float ySpeed) {
-		this.ySpeed = ySpeed;
+		this.ballYSpeed = ySpeed;
 	}
 
-	public static float getRadius() {
+	public float getBallRadius() {
         return ballRadius;
     }
 	
@@ -122,142 +112,64 @@ public class Ball implements Serializable {
     }
 
     public void onDraw(Canvas canvas) {
-        canvas.drawCircle(x, y, ballRadius, paint);
+        canvas.drawCircle(ballX, ballY, ballRadius, paint);
     }
 
     public void moveBall() {
         onPlayData = new OnPlayData();
         
-        x = x + xSpeed;
-        y = y + ySpeed;
+        ballX = ballX + ballXSpeed;
+        ballY = ballY + ballYSpeed;
         
-        updatePhysics();
-    }
-	/*public void updatePhysics() {
-		float left,right;
-		left = bar.getX()-bar.getLength()/2;
-		right = bar.getX()+bar.getLength()/2;
-		if(x > screenWidth-ballRadius) {
-    		xSpeed=-xSpeed;
-    	}
-		else if(x < ballRadius) {
-    		xSpeed=-xSpeed;
-    	}
-    	if(y > screenHeight-ballRadius) {
-    		ySpeed=-ySpeed;
-    	}
-    	else if(y < ballRadius) {
-    		ySpeed=-ySpeed;
-    	}
-    	else if((y + ballRadius)>= (bar.getY()-bar.getWidth()/2))
-    	{
-    		if(x>=left&&x<=right&&((y - ballRadius)<(bar.getY()-bar.getWidth()/2)))
-    			ySpeed=-ySpeed;
-    	}
-	}*/
-
-	public void updatePhysics() {
-	    detectBoundary();
+        detectBoundary();
 	    detectBarCollision();
-	}
+    }
 	
 	public void detectBoundary() {
-		if(x > screenWidth-ballRadius) {
-		    x = screenWidth-ballRadius;
-    		xSpeed = -Math.abs(xSpeed);
+		if(ballX > screenWidth-ballRadius) {
+		    ballX = screenWidth-ballRadius;
+    		ballXSpeed = -Math.abs(ballXSpeed);
     	}
-		else if(x < ballRadius) {
-		    x = ballRadius;
-    		xSpeed = Math.abs(xSpeed);
+		else if(ballX < ballRadius) {
+		    ballX = ballRadius;
+    		ballXSpeed = Math.abs(ballXSpeed);
     	}
 		
-    	if(y < ballRadius) {
-    	    y = ballRadius;
-    	    ySpeed = -ySpeed;
-    	} else if (y > screenHeight-ballRadius){
-    	    y = screenHeight-ballRadius;
-            xSpeed = 0;
-            ySpeed = 0;
+    	if(ballY < ballRadius) {
+    	    ballY = ballRadius;
+    	    ballYSpeed = -ballYSpeed;
+    	} else if (ballY > screenHeight-ballRadius){
+    	    ballY = screenHeight-ballRadius;
+            ballXSpeed = 0;
+            ballYSpeed = 0;
             onPlayData.setLives(-1);
     	}
 	}
 
 	public void detectBarCollision() {
-		if(ySpeed < 0) //improve efficiency
+		if(ballYSpeed < 0) //improve efficiency
 			return;
 		else {
-			float upperLine = bar.getY();
-			float leftLine = bar.getX();
-			float rightLine = bar.getX() + bar.getLength();
+			float upperLine = bar.getBarY();
+			float leftLine = bar.getBarX();
+			float rightLine = bar.getBarX() + bar.getBarLength();
 			
-			if (y + ballRadius >= upperLine && y < upperLine) {
-			    if(x >= leftLine && x <= rightLine) {
-			        y = upperLine - ballRadius;
-			        ySpeed = -ySpeed;
-                    xSpeed = xSpeed + bar.getBarXSpeed();
-	            } else if (x + 0.707 * ballRadius >= leftLine && x < leftLine && xSpeed > 0) //0.707 = sqrt(2)/2
+			if (ballY + ballRadius >= upperLine && ballY < upperLine) {
+			    if(ballX >= leftLine && ballX <= rightLine) {
+			        ballY = upperLine - ballRadius;
+			        ballYSpeed = -ballYSpeed;
+                    ballXSpeed = ballXSpeed + bar.getBarXSpeed();
+	            } else if (ballX + 0.707 * ballRadius >= leftLine && ballX < leftLine && ballXSpeed > 0) //0.707 = sqrt(2)/2
 	            {
-	                y = upperLine - ballRadius;
-	                xSpeed = -xSpeed;
-                    ySpeed = -ySpeed;
-	            } else if (x - 0.707 * ballRadius <= rightLine && x > rightLine && xSpeed < 0) {
-	                y = upperLine - ballRadius;
-                    xSpeed=-xSpeed;
-                    ySpeed=-ySpeed;
+	                ballY = upperLine - ballRadius;
+	                ballXSpeed = -ballXSpeed;
+                    ballYSpeed = -ballYSpeed;
+	            } else if (ballX - 0.707 * ballRadius <= rightLine && ballX > rightLine && ballXSpeed < 0) {
+	                ballY = upperLine - ballRadius;
+                    ballXSpeed=-ballXSpeed;
+                    ballYSpeed=-ballYSpeed;
 	            }
 			}
 		}
 	}
-	/* This method is moved to bricks class.
-	public void detectBricksCollision() {
-		Bricks wall = bricks;
-		Brick[] bricks = wall.getBricks();
-		float halfWidth = bricks[0].getWidth()/2;
-		float halfLength = bricks[0].getLength()/2;
-		float x,y,upperLine,leftLine,rightLine,bottomLine,rpi; //describe the bricks;
-		for(int i = 0; i<wall.getNumber(); i++){
-			if(bricks[i].getLive())
-			{
-				x = bricks[i].getX();
-				y = bricks[i].getY();
-				if((Math.abs(y-this.y)>halfWidth+this.ballRadius)||Math.abs(x-this.x)>halfLength+this.ballRadius)
-					continue; //for improving the efficiency 
-				upperLine = y - halfWidth;;
-				leftLine = x - halfLength;
-				rightLine = x + halfLength;
-				bottomLine = y + halfWidth;
-				rpi = (float) (0.707*ballRadius);
-				if((this.x+rpi)>leftLine&&(this.x-rpi)<rightLine)
-				{
-					if(ySpeed>0&&this.y+ballRadius>=upperLine&&this.y-ballRadius<=upperLine)
-					{	
-						ySpeed=-ySpeed;
-						bricks[i].eliminateBrick();
-						continue;
-					}
-					if(ySpeed<0&&this.y-ballRadius<=bottomLine&&this.y+ballRadius>=bottomLine)
-					{
-						ySpeed=-ySpeed;
-						bricks[i].eliminateBrick();
-						continue;
-					}
-				}
-				if(this.y+rpi>=upperLine&&this.y-rpi<=bottomLine)
-				{
-					if(xSpeed>0&&this.x+ballRadius>=leftLine&&this.x<=leftLine)
-					{
-						xSpeed=-xSpeed;
-						bricks[i].eliminateBrick();
-						continue;
-					}
-					if(xSpeed<0&&this.x-ballRadius>=rightLine&&this.x<=rightLine)
-					{
-						xSpeed=-xSpeed;
-						bricks[i].eliminateBrick();
-						continue;
-					}
-				]
-			}
-		}
-	}*/
 }

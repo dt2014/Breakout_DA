@@ -1,66 +1,74 @@
 {
-	"initballx": 0.5F,
-	"initbally": 0.7F,
-	"initballxspeed": 0.005F,
-	"initballyspeed": 0.005F,
 	"bricks": [{
-		"x": 0.02F,
-		"y": 0.5F,
+		"brickId": 1,
+		"brickX": 0.02f,
+		"brickY": 0.5f,
 		"special": false
 	},
 	{
-		"x": 0.10F,
-		"y": 0.5F,
+		"brickId": 2,
+		"brickX": 0.10f,
+		"brickY": 0.5f,
 		"special": false
 	},
 	{
-		"x": 0.18F,
-		"y": 0.5F,
+		"brickId": 3,
+		"brickX": 0.18f,
+		"brickY": 0.5f,
 		"special": false
 	},
 	{
-		"x": 0.26F,
-		"y": 0.5F,
+		"brickId": 4,
+		"brickX": 0.26f,
+		"brickY": 0.5f,
 		"special": false
 	},
 	{
-		"x": 0.34F,
-		"y": 0.5F,
+		"brickId": 5,
+		"brickX": 0.34f,
+		"brickY": 0.5f,
 		"special": false
 	},
 	{
-		"x": 0.42F,
-		"y": 0.5F,
+		"brickId": 6,
+		"brickX": 0.42f,
+		"brickY": 0.5f,
 		"special": true
 	},
 	{
-		"x": 0.50F,
-		"y": 0.5F,
+		"brickId": 7,
+		"brickX": 0.50f,
+		"brickY": 0.5f,
 		"special": false
 	},
 	{
-		"x": 0.58F,
-		"y": 0.5F,
+		"brickId": 8,
+		"brickX": 0.58f,
+		"brickY": 0.5f,
 		"special": false
 	},
 	{
-		"x": 0.66F,
-		"y": 0.5F,
+		"brickId": 9,
+		"brickX": 0.66f,
+		"brickY": 0.5f,
 		"special": false
 	},
 	{
-		"x": 0.74F,
-		"y": 0.5F,
+		"brickId": 10,
+		"brickX": 0.74f,
+		"brickY": 0.5f,
 		"special": false
 	},
 	{
-		"x": 0.82F,
-		"y": 0.5F,
+		"brickId": 11,
+		"brickX": 0.82f,
+		"brickY": 0.5f,
 		"special": false
 	},
 	{
-		"x": 0.90F,
-		"y": 0.5F,
+		"brickId": 12,
+		"brickX": 0.90f,
+		"brickY": 0.5f,
 		"special": false
 	}]
 }

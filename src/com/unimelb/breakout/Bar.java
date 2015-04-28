@@ -1,14 +1,13 @@
 package com.unimelb.breakout;
 
 /**
- * COMP90018 Mobile Computing System Programming, Project Breakout Game
- * Semester 2, 2014
- * Group 25
+ * COMP90020 Distributed Algorithms
+ * Semester 1, 2015
+ * Group 4
  * Students: (Name, StudentNumber, Email)
- *          Chenchao Ye, 633657, chenchaoy@student.unimelb.edu.au
- *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
+ *          Bumsik Ahn, 621389, bahn@student.unimelb.edu.au
  *          Jiajie Li, 631482, jiajiel@student.unimelb.edu.au
- *          Shuangchao Yin, 612511, shuangchaoy@student.unimelb.edu.au
+ *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
  */
 
 import java.io.Serializable;
@@ -18,13 +17,11 @@ import android.graphics.Paint;
 
 public class Bar implements Serializable {
     private static final long serialVersionUID = 6816443624906944960L;
-    
-    public static final float heightFactor = 0.02F; // the portion of the screenHeight
-    public static final float lengthFactor = 0.4F; // the portion of screenWidth
-    private volatile float length;
-    private volatile float height;
-    private volatile float x;
-    private volatile float y;
+
+    private volatile float barLength;
+    private volatile float barHeight;
+    private volatile float barX;
+    private volatile float barY;
     private volatile float oldTouchX;
     private volatile float barXSpeed;
     
@@ -36,15 +33,15 @@ public class Bar implements Serializable {
     private volatile int count;
     private volatile long prevT;
     
-    public Bar(float x, float y, int screenWidth, int screenHeight) {
-        this.x = x;
-        this.y = y;
+    public Bar(float barX, float barY, int screenWidth, int screenHeight) {
+        this.barX = barX;
+        this.barY = barY;
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        length = screenWidth * lengthFactor;
-        height = screenHeight * heightFactor;
-        oldTouchX = x;
+        barLength = screenWidth * Constants.BAR_LENGTH_FACTOR;
+        barHeight = screenHeight * Constants.BAR_HEIGHT_FACTOR;
+        oldTouchX = barX;
         barXSpeed = 0;
         
         paint.setAntiAlias(true);
@@ -52,16 +49,16 @@ public class Bar implements Serializable {
     }
 
     public void onDraw(Canvas canvas) {
-        canvas.drawRect(x, y, x + length, y + height, paint);
+        canvas.drawRect(barX, barY, barX + barLength, barY + barHeight, paint);
     }
     public void move(float deltaX, long deltaT) {
         count = 0;
         isMoved = true;
-        x = x + deltaX;
-        if (x < 0) {
-            x = 0;
-        } else if (x + length > screenWidth) {
-            x = screenWidth - length;
+        barX = barX + deltaX;
+        if (barX < 0) {
+            barX = 0;
+        } else if (barX + barLength > screenWidth) {
+            barX = screenWidth - barLength;
         }
         barXSpeed = (deltaX / deltaT * 100);
         float speedValue = Math.abs(barXSpeed);
@@ -79,28 +76,28 @@ public class Bar implements Serializable {
         }
     }
 
-    public float getLength() {
-        return length;
+    public float getBarLength() {
+        return barLength;
     }
     
-    public float getHeight() {
-        return height;
+    public float getBarHeight() {
+        return barHeight;
     }
     
-    public float getX() {
-		return x;
+    public float getBarX() {
+		return barX;
 	}
 
-    public float getY() {
-		return y;
+    public float getBarY() {
+		return barY;
 	}
     
-	public void setX(float x) {
-		this.x = x;
-		if (x < 0) {
-            this.x = 0;
-        } else if (x + length > screenWidth) {
-            this.x = screenWidth - length;
+	public void setBarX(float barX) {
+		this.barX = barX;
+		if (barX < 0) {
+            this.barX = 0;
+        } else if (barX + barLength > screenWidth) {
+            this.barX = screenWidth - barLength;
         }
 	}
 	
