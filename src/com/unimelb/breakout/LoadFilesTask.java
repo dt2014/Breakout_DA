@@ -113,32 +113,12 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
             if (context.getClass() == MenuActivity.class) {
                 ((MenuActivity) context).callActivityForResult(MainActivity.class);
             } else { 
-            	showError();
+            	Utils.showError(context, R.string.err_load_map);
             }
         } else if (! isCancelled()) {
-            showError();
+        	Utils.showError(context, R.string.err_load_map);
         }
         if(pg!=null)
             pg.dismiss();
-    }
-    
-    public void showError() {
-        ((Activity) context).runOnUiThread(new Runnable() {
-            public void run() {
-                AlertDialog.Builder builder = new Builder(context);
-                builder.setMessage(R.string.err_load_map);
-                builder.setCancelable(true);
-                builder.setPositiveButton(R.string.lbl_back, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                        if (context.getClass().isInstance(MainActivity.class)) {
-                            ((Activity) context).finish();
-                        }
-                    }
-                });
-                builder.create().show();
-            }
-        });
     }
 }

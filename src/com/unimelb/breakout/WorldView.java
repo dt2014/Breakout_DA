@@ -12,6 +12,16 @@ package com.unimelb.breakout;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
@@ -52,7 +62,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 	@Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);
-        int height = (int) (MeasureSpec.getSize(heightMeasureSpec) * 0.8);
+        int height = (int) (MeasureSpec.getSize(heightMeasureSpec) * 0.85);
         super.onMeasure(
                 MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                 MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
@@ -192,6 +202,21 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 	@Override
 	public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
 	    saveRuntimeData();
+	    String url = Constants.SEVER_URL + "?command=stop&player_name=" + rData.getMyName();
+    	Log.i(TAG, url);
+    	StringRequest stopGameRequest = new StringRequest(Request.Method.GET, url,
+    			new Response.Listener<String>() {
+    	    @Override
+    	    public void onResponse(String response) {
+    	    }
+    	}, new Response.ErrorListener() {
+    	    @Override
+    	    public void onErrorResponse(VolleyError error) {
+    	    	error.printStackTrace();
+    	    }
+    	});
+    	stopGameRequest.setTag(TAG);
+    	VolleySingleton.getInstance(mainActivity.getApplicationContext()).addToRequestQueue(stopGameRequest);
         Log.d(TAG, "surface destroyed!");
 	}
 

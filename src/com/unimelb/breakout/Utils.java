@@ -15,6 +15,12 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.Context;
+import android.content.DialogInterface;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -53,5 +59,25 @@ public final class Utils {
             }
         }
         return nameInitials.toString().toUpperCase();
+    }
+    
+    public static void showError(final Context context, final int errMsg) {
+        ((Activity) context).runOnUiThread(new Runnable() {
+            public void run() {
+                AlertDialog.Builder builder = new Builder(context);
+                builder.setMessage(errMsg);
+                builder.setCancelable(true);
+                builder.setPositiveButton(R.string.lbl_back, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        if (context.getClass().isInstance(MainActivity.class)) {
+                            ((Activity) context).finish();
+                        }
+                    }
+                });
+                builder.create().show();
+            }
+        });
     }
 }

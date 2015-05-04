@@ -10,6 +10,8 @@ package com.unimelb.breakout;
  *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
  */
 
+import com.android.volley.RequestQueue;
+
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
@@ -82,10 +84,14 @@ public class MainActivity extends Activity {
         Log.i(TAG,"game play onPause");
     }
     
-	protected void onStop() {
-	    super.onStop();  
-	    //Log.i(TAG,"this is onStop");
-	}
+    @Override
+    protected void onStop() {
+    	super.onStop();
+    	RequestQueue queue = VolleySingleton.getInstance(this.getApplicationContext()).getRequestQueue();
+        if (queue != null) {
+        	queue.cancelAll(TAG);
+        }
+    };
 
     @Override
     public void onDestroy() {

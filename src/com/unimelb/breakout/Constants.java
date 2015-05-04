@@ -14,7 +14,7 @@ public class Constants {
 	/**
 	 * 
 	 */
-	public static String SEVER_URL = "letsbreakout.comxa.com/api.php";
+	public static String SEVER_URL = "http://letsbreakout.comxa.com/api.php";
 	public static final int NETWORK_TIMEOUT = 2000;
 	public static final int TRANSFER_TIMEOUT = 3000;
 	
