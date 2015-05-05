@@ -69,14 +69,14 @@ public class Bar implements Serializable {
         } else if (barX + Constants.BAR_LENGTH_FACTOR > 1) {
             barX = 1 - Constants.BAR_LENGTH_FACTOR;
         }
-        barXSpeed = (deltaX / deltaT * 100);
+        barXSpeed = (deltaX / deltaT * 1000);
         float speedValue = Math.abs(barXSpeed);
         if (speedValue > 0 && speedValue <= 20) {
-            speedValue = 1;
+            speedValue = 0.001f;
         } else if (speedValue > 20 && speedValue <= 30) {
-            speedValue = 2;
+            speedValue = 0.002f;
         } else if (speedValue > 30) {
-            speedValue = 3;
+            speedValue = 0.003f;
         }
         if (barXSpeed > 0) {
             barXSpeed = speedValue;
