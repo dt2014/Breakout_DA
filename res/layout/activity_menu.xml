@@ -26,7 +26,8 @@
         android:layout_marginTop="20dp"
         android:background="@drawable/custom_button"
         android:onClick="clickNewPlayer"
-        android:text="@string/new_player" />
+        android:text="@string/new_player"
+        android:textSize="20sp" />
 
     <Button
         android:id="@+id/startGameButton"
@@ -36,7 +37,8 @@
         android:layout_marginTop="20dp"
         android:background="@drawable/custom_button"
         android:onClick="clickStartNewGame"
-        android:text="@string/start_game" />
+        android:text="@string/start_game"
+        android:textSize="20sp" />
 
     <Button
         android:id="@+id/helpButton"
@@ -46,7 +48,8 @@
         android:layout_marginTop="20dp"
         android:background="@drawable/custom_button"
         android:onClick="clickHelp"
-        android:text="@string/help" />
+        android:text="@string/help"
+        android:textSize="20sp" />
 
     <Button
         android:id="@+id/exitButton"
@@ -56,6 +59,7 @@
         android:layout_marginTop="20dp"
         android:background="@drawable/custom_button"
         android:onClick="clickExit"
-        android:text="@string/exit" />
+        android:text="@string/exit"
+        android:textSize="20sp" />
 
 </LinearLayout>

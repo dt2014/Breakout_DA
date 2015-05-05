@@ -20,7 +20,12 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -29,7 +34,7 @@ public final class Utils {
 
     private Utils() {}
 
-    public static final List<Brick> extraMapData(String json, RuntimeData rData) {
+    public static final List<Brick> extraMapData(String json) {
         Gson gson = new Gson();
         JsonObject jobj = gson.fromJson(json, JsonObject.class);
         
@@ -79,5 +84,22 @@ public final class Utils {
                 builder.create().show();
             }
         });
+    }
+    
+    public static void deActivateFromServer(Context context, String name) {
+    	String url = Constants.SEVER_URL + "?command=stop&player_name=" + name;
+    	Log.d("deActivateFromServer", url);
+    	StringRequest stopGameRequest = new StringRequest(Request.Method.GET, url,
+    			new Response.Listener<String>() {
+    	    @Override
+    	    public void onResponse(String response) {
+    	    }
+    	}, new Response.ErrorListener() {
+    	    @Override
+    	    public void onErrorResponse(VolleyError error) {
+    	    	error.printStackTrace();
+    	    }
+    	});
+    	VolleySingleton.getInstance(context.getApplicationContext()).addToRequestQueue(stopGameRequest);
     }
 }

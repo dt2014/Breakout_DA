@@ -15,18 +15,17 @@ import com.android.volley.RequestQueue;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    private static final String TAG = MainActivity.class.getName();    
+    public final String TAG = MainActivity.class.getName();    
 
     private volatile RuntimeData rData;
 	private WorldView worldView;
@@ -66,22 +65,22 @@ public class MainActivity extends Activity {
 		sp = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 		collideId = sp.load(this, R.raw.collide, 1);
 
-		Log.d(TAG,"game view onCreate");
+		Log.i(TAG,"game activity onCreate");
 	}
 	
 	protected void onStart() {
 		super.onStart();
-		//Log.i(TAG,"this is onStart");
+		Log.i(TAG,"game activity onStart");
 	}
 	
 	protected void onResume() {
 		super.onResume();
-		Log.i(TAG,"game view onResume");
+		Log.i(TAG,"game activity onResume");
 	}
 
     protected void onPause() {
     	super.onPause();
-        Log.i(TAG,"game play onPause");
+        Log.i(TAG,"game activity onPause");
     }
     
     @Override
@@ -91,6 +90,7 @@ public class MainActivity extends Activity {
         if (queue != null) {
         	queue.cancelAll(TAG);
         }
+        Log.i(TAG, "game activity onStop");
     };
 
     @Override
@@ -99,10 +99,11 @@ public class MainActivity extends Activity {
         if (sp != null) {
             sp.release();
         }
+        Log.i(TAG,"game activity onDestroy");
     }
 
     protected void onSaveInstanceState(Bundle savedInstanceState) {
-        Log.i(TAG,"this is onSaveInstanceState");
+        Log.i(TAG,"game activity onSaveInstanceState");
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putSerializable("RUNTIME.DATA", rData);
     }
@@ -122,17 +123,22 @@ public class MainActivity extends Activity {
         worldView = (WorldView)findViewById(R.id.worldView);
         transpentLayer = (View)findViewById(R.id.trans_layer);
         final TextView prompt_message = (TextView)findViewById(R.id.txt_ready);
+    	transpentLayer.setVisibility(View.VISIBLE);
         prompt_message.setText(R.string.tip_ready);
-        transpentLayer.setVisibility(View.VISIBLE);
-        transpentLayer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                prompt_message.setText(R.string.go); //TODO!!!
-                v.setVisibility(View.INVISIBLE);
+        new CountDownTimer(Constants.GAME_COUNTDOWN, Constants.COUNTDOWN_INTERVAL) {
+            public void onTick(long millisUntilFinished) {
+            	if (millisUntilFinished > Constants.COUNTDOWN_INTERVAL * 2) {
+            		prompt_message.setText("" + (millisUntilFinished / 1000 - 1 ) + "");
+            	} else {
+                	prompt_message.setText(R.string.go);
+            	}
+            }
+            public void onFinish() {
+            	prompt_message.setVisibility(View.INVISIBLE);
                 rData.setRunning(true);
                 new Thread(worldView).start();
             }
-        });
+         }.start();
     }
     
     public void generateGameOverDialog() {
@@ -166,12 +172,7 @@ public class MainActivity extends Activity {
     public void clearScore() {
         rData.setMyScore(0);
         rData.setRivalScore(0);
-        SharedPreferences sharedPref = getSharedPreferences(MenuActivity.PREF, 
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt("SAVED.MYSCORE", rData.getMyScore());
-        editor.putInt("SAVED.RIVALSCORE", rData.getRivalScore());
-        editor.commit();
+        rData.setRivalName(null);
     }
 
     public RuntimeData getrData() {

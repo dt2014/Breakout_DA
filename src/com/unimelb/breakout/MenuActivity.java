@@ -10,19 +10,8 @@ package com.unimelb.breakout;
  *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
  */
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -38,7 +27,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 public class MenuActivity extends Activity{
@@ -46,7 +34,7 @@ public class MenuActivity extends Activity{
     public static final String PREF = "Breakout_Preferences";
     public static final int MENU_ACTIVITY = 1;
     private volatile RuntimeData rData;
-    private volatile TextView welcome;    
+    private volatile TextView welcome;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -145,67 +133,39 @@ public class MenuActivity extends Activity{
         Log.i(TAG,"menu onPause");
         super.onPause();
     }
+
+    @Override
+    protected void onStop() {
+    	super.onStop();
+//    	RequestQueue queue = VolleySingleton.getInstance(this.getApplicationContext()).getRequestQueue();
+//        if (queue != null) {
+//        	queue.cancelAll(TAG);
+//        }
+        Log.i(TAG, "menu onStop");
+    }
     
     /*
      * send my name to server to initiate the game and get back rival_name & map_side
      */
     private void initGameAtServer() {
-    	String url = Constants.SEVER_URL + "?command=start&player_name=" + rData.getMyName();
-//    	Log.i(TAG, url);
-    	JsonObjectRequest startGameRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-    	    @Override
-    	    public void onResponse(JSONObject response) {
-    	    	try {
-					if (response.getString("response").equals("start")) {
-						rData.setMapSide(response.getString("map_side"));
-    					Log.i(TAG, "Map_side" + rData.getMapSide());
-    					rData.setRivalName(response.getString("rival_name"));
-//    					Log.i(TAG, response.toString());
-    					loadFilesToGame();
-					} else {
-						Utils.showError(MenuActivity.this, R.string.err_init_game);
-					}
-				} catch (JSONException e) {
-					Utils.showError(MenuActivity.this, R.string.err_init_game);
-					e.printStackTrace();
-				}
-    	    }
-    	}, new Response.ErrorListener() {
-    	    @Override
-    	    public void onErrorResponse(VolleyError error) {
-    	    	Utils.showError(MenuActivity.this, R.string.err_init_game);
-    	    	error.printStackTrace();
-    	    }
-    	});
-    	startGameRequest.setTag(TAG);
-    	VolleySingleton.getInstance(this.getApplicationContext()).addToRequestQueue(startGameRequest);
-	}
-    
-    private void loadFilesToGame() {
-        final LoadFilesTask task = new LoadFilesTask(this);
+//    	Utils.deActivateFromServer(this, rData.getMyName());
+    	final InitGameAtServerTask task = new InitGameAtServerTask(this);
         task.execute(rData);
         new Thread() {
             @Override
             public void run() {
                 try {
-                    task.get(5000, TimeUnit.MILLISECONDS);
+                    task.get(Constants.INITGAME_TASK_TIMEOUT, TimeUnit.MILLISECONDS);
+                } catch (CancellationException e) {
+        			Log.i(TAG, e.toString());
                 } catch (Exception e) {
+        			Log.i(TAG, e.toString());
                     task.cancel(true);
-                    Utils.showError(MenuActivity.this, R.string.err_load_map);
+                    Utils.showError(MenuActivity.this, R.string.err_init_game);
                 }
             }
         }.start();
-    }
-    
-    @Override
-    protected void onStop() {
-    	super.onStop();
-    	RequestQueue queue = VolleySingleton.getInstance(this.getApplicationContext()).getRequestQueue();
-        if (queue != null) {
-        	queue.cancelAll(TAG);
-        }
-    };
+	}
     
     public void callActivityForResult(Class<?> activityClass) {
         Bundle extras = new Bundle();

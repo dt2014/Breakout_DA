@@ -45,10 +45,10 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 	private volatile int gameViewWidth;
 	private volatile int gameViewHeight;
 	private MainActivity mainActivity;
-	private volatile float ballInitX;
-	private volatile float ballInitY;
-	private volatile float ballInitXSpeed;
-	private volatile float ballInitYSpeed;
+//	private volatile float ballInitX;
+//	private volatile float ballInitY;
+//	private volatile float ballInitXSpeed;
+//	private volatile float ballInitYSpeed;
 	private volatile SoundPool sp;
     private volatile int collideId;
 	
@@ -62,7 +62,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 	@Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);
-        int height = (int) (MeasureSpec.getSize(heightMeasureSpec) * 0.85);
+        int height = (int) (MeasureSpec.getSize(heightMeasureSpec) * Constants.GAMEVIEW_HEIGHT_FACTOR);
         super.onMeasure(
                 MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                 MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
@@ -71,23 +71,59 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
     }
 	
 	@Override
+	public void surfaceCreated(SurfaceHolder surfaceHolder) {
+	    mainActivity = (MainActivity) getContext();
+	    gameViewWidth = getWidth();
+	    gameViewHeight = getHeight();
+        rData = mainActivity.getrData();
+        rData.setGameViewWidth(gameViewWidth);
+        rData.setGameViewHeight(gameViewHeight);
+        sp = mainActivity.getSp();
+        collideId = mainActivity.getCollideId();
+        
+        this.surfaceHolder = surfaceHolder;
+        paint = new Paint();
+        paint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
+        initBallAndBar();
+//        rData.getBricks().validate(gameViewWidth, rData.getMyBar().getBarY());
+        drawGame();
+        Log.d(TAG,"surfaceCreated");
+	}
+
+	@Override
+	public void surfaceChanged(SurfaceHolder surfaceHolder, int format, int width, int height) {
+		
+	}
+	
+	@Override
+	public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+	    rData.setRunning(false);
+	    Utils.deActivateFromServer(mainActivity, rData.getMyName());
+        Log.d(TAG, "surface destroyed!");
+	}
+	
+	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-	    Bar bar = rData.getMyBar();
+	    Bar myBar = rData.getMyBar();
 	    if (rData.isRunning()) {
 	        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-	            bar.setOldTouchX(event.getRawX());
-	            rData.getMyBar().setPrevT(System.currentTimeMillis());
+	            myBar.setOldTouchX(event.getRawX() / gameViewWidth);
+	            myBar.setPrevT(System.currentTimeMillis());
+	            rData.setMyBar(myBar);
+//	            Log.d(TAG, rData.getMyName() + " in bar action down");
 	        }
 	        if(event.getAction() == MotionEvent.ACTION_MOVE) {
-	            float curX = event.getRawX();
-	            float dx =  curX - bar.getOldTouchX();
-	            long dt = System.currentTimeMillis() - bar.getPrevT();
-	            if (Math.abs(dx) > 10) {
+	            float curX = event.getRawX() / gameViewWidth;
+	            float dx =  curX - myBar.getOldTouchX();
+	            long dt = System.currentTimeMillis() - myBar.getPrevT();
+	            if (Math.abs(dx) > 0.01) {
 	                if (lock.tryLock()) {
                         try {
-                            bar.move(dx, dt);
-                            bar.setOldTouchX(curX);
-                            rData.setMyBarXSpeed(bar.getBarXSpeed());
+                            myBar.move(dx, dt);
+                            myBar.setOldTouchX(curX);
+                            rData.setMyBar(myBar);
+//                            Log.d(TAG, rData.getMyName() + " in bar action move");
+//                            rData.setMyBarXSpeed(myBar.getBarXSpeed());
                         } finally {
                             lock.unlock();
                         }
@@ -102,10 +138,11 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 		while(rData.isRunning()) {
 			try {
 			    drawGame();
+			    
 			    if (!rData.isRunning()) {
                     return;
                 } else {
-                    Thread.sleep(5);
+                    Thread.sleep(Constants.GAME_THREAD_SLEEP);
                 }
         	} catch (Exception e) {
         	    
@@ -114,6 +151,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 	}
 
     private void drawGame() {
+//    	Log.d(TAG, rData.getMyName() + " in drawGame");
 	    mainActivity.showRuntimeData();
         Canvas canvas = null;
         Ball ball1 = rData.getBall1();
@@ -121,8 +159,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
         Bar myBar = rData.getMyBar();
         Bar rivalBar = rData.getRivalBar();
         Bricks bricks = rData.getBricks();
-        bricks.setViewSize(gameViewWidth, gameViewHeight);
-        OnPlayData onPlayData = new OnPlayData();
+//        OnPlayData onPlayData = new OnPlayData();
        
         synchronized(surfaceHolder) {
             try {
@@ -130,11 +167,11 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
                 if (canvas != null) {
                     paint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
                     canvas.drawPaint(paint);
-                    onPlayData = bricks.onDraw(canvas, ball1);
-                    myBar.onDraw(canvas);
-                    ball1.onDraw(canvas);
-                    rivalBar.onDraw(canvas);
-                    ball2.onDraw(canvas);
+                    bricks.onDraw(canvas, gameViewWidth, gameViewHeight);
+                    myBar.onDraw(canvas, gameViewWidth, gameViewHeight);
+                    rivalBar.onDraw(canvas, gameViewWidth, gameViewHeight);
+                    ball1.onDraw(canvas, gameViewWidth, gameViewHeight);
+                    ball2.onDraw(canvas, gameViewWidth, gameViewHeight);
                 }
             } finally {
                 if (canvas != null) {
@@ -145,66 +182,55 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
         
         try {
             lock.lock();
-            rData.setBall1XSpeed(ball1.getXSpeed());
-            rData.setBall1YSpeed(ball1.getYSpeed());
-            int score = onPlayData.getScore();
-            if (score > 0) {
-                sp.play(collideId, 0.5f, 0.5f, 0, 0, 1);
-                rData.setMyScore(rData.getMyScore() + score);
-            }
-            myBar.updateSpeed();
-            rData.setMyBarXSpeed(myBar.getBarXSpeed());
+//            rData.setBall1XSpeed(ball1.getXSpeed());
+//            rData.setBall1YSpeed(ball1.getYSpeed());
+            //TODO!!!!!!!!!!!!
+//            int score = onPlayData.getScore();
+//            if (score > 0) {
+//                sp.play(collideId, 0.5f, 0.5f, 0, 0, 1);
+//                rData.setMyScore(rData.getMyScore() + score);
+//            }
+//            myBar.updateSpeed();
+//            rData.setMyBarXSpeed(myBar.getBarXSpeed());
             ball1.moveBall();
-            if (onPlayData.isClear()) { //all bricks are gone
-                rData.setBall1XSpeed(0);
-                rData.setBall1YSpeed(0);
-                rData.setMyBarXSpeed(0);
+            ball2.moveBall();
+            if (!ball1.getOnPlayInfo().gameIsOn() || !ball2.getOnPlayInfo().gameIsOn()) { //either ball hit the ground, game over
+            	rData.setRunning(false);
+            	Log.d(TAG, "ball hit the ground");
+            }
+            if (ball1.getOnPlayInfo().isOwnershipChanged()) {
+            	Log.d(TAG, "inform server to change ball 1 ownership to " + rData.getMyName());
+            	writeChangedOwnership(ball1.getBallId(), rData.getMyName());
+            }
+            if (ball2.getOnPlayInfo().isOwnershipChanged()) {
+            	Log.d(TAG, "inform server to change ball 2 ownership to " + rData.getMyName());
+            	writeChangedOwnership(ball2.getBallId(), rData.getMyName());
+            }
+            
+            
+            
+//            if (ball1.isOwned())
+            rData.setBall1(ball1);
+            rData.setBall2(ball2);
+            if (bricks.isClear()) { //all bricks are gone
+//                rData.setBall1XSpeed(0);
+//                rData.setBall1YSpeed(0);
+//                rData.setMyBarXSpeed(0);
                 mainActivity.showRuntimeData();
                 rData.setRunning(false);
                 
                 //TODO: Inform winning or game over
-                mainActivity.generateGameOverDialog();
+//                mainActivity.generateGameOverDialog();
             }   
         } finally {
             lock.unlock();
         }
 	}
-
-	@Override
-	public void surfaceChanged(SurfaceHolder surfaceHolder, int format, int width, int height) {
-		
-	}
-
-	@Override
-	public void surfaceCreated(SurfaceHolder surfaceHolder) {
-	    mainActivity = (MainActivity) getContext();
-	    gameViewWidth = getWidth();
-	    gameViewHeight = getHeight();
-        rData = mainActivity.getrData();
-        rData.setGameViewWidth(gameViewWidth);
-        rData.setGameViewHeight(gameViewHeight);
-        ballInitX = rData.getInitBallX() * gameViewWidth;
-        ballInitY = rData.getInitBallY() * gameViewHeight;
-        ballInitXSpeed = rData.getInitBallXSpeed() * gameViewWidth;
-        ballInitYSpeed = rData.getInitBallYSpeed() * gameViewHeight;
-        sp = mainActivity.getSp();
-        collideId = mainActivity.getCollideId();
-        
-        this.surfaceHolder = surfaceHolder;
-        paint = new Paint();
-        paint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
-        initBallAndBar();
-        rData.getBricks().validate(gameViewWidth, rData.getMyBar().getBarY());
-        drawGame();
-        Log.d(TAG,"surfaceCreated");
-	}
-
-	@Override
-	public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-	    saveRuntimeData();
-	    String url = Constants.SEVER_URL + "?command=stop&player_name=" + rData.getMyName();
-    	Log.i(TAG, url);
-    	StringRequest stopGameRequest = new StringRequest(Request.Method.GET, url,
+    
+    private void writeChangedOwnership(int ballId, String myName) {
+    	String url = Constants.SEVER_URL + "?command=write&owner_name=" + myName + "&ball_id=" + ballId;
+    	Log.d(TAG, url);
+    	StringRequest request = new StringRequest(Request.Method.GET, url,
     			new Response.Listener<String>() {
     	    @Override
     	    public void onResponse(String response) {
@@ -215,63 +241,66 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
     	    	error.printStackTrace();
     	    }
     	});
-    	stopGameRequest.setTag(TAG);
-    	VolleySingleton.getInstance(mainActivity.getApplicationContext()).addToRequestQueue(stopGameRequest);
-        Log.d(TAG, "surface destroyed!");
-	}
-
-	public void saveRuntimeData() {
-	    rData.setRunning(false);
-        SharedPreferences sharedPref = mainActivity.
-                getSharedPreferences(MenuActivity.PREF, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt("SAVED.WIDTH", rData.getGameViewWidth());
-        editor.putInt("SAVED.HEIGHT", rData.getGameViewHeight());
-        editor.putString("SAVED.MyNAME", rData.getMyName());
-        editor.putString("SAVED.RIVALNAME", rData.getRivalName());
-        editor.putInt("SAVED.MYSCORE", rData.getMyScore());
-        editor.putInt("SAVED.RIVALSCORE", rData.getRivalScore());
-        if (rData.getBricks() == null || rData.getBricks().getAliveBrickCount() == 0) {
-            editor.putString("SAVED.BRICKS", null);
-        } else {
-            Ball ball = rData.getBall1();
-            Bar bar = rData.getMyBar();
-            editor.putFloat("SAVED.BALLX", ball.getX());
-            editor.putFloat("SAVED.BALLY", ball.getY());
-            editor.putFloat("SAVED.SPEEDX", ball.getXSpeed());
-            editor.putFloat("SAVED.SPEEDY", ball.getYSpeed());
-            editor.putFloat("SAVED.BARX", bar.getBarX());
-            editor.putFloat("SAVED.BARY", bar.getBarY());
-            editor.putFloat("SAVED.BARXSPEED", bar.getBarXSpeed());
-            String json = Utils.saveBricks(rData.getBricks());
-            editor.putString("SAVED.BRICKS", json);
-            editor.putFloat("SAVED.INITBALLX", rData.getInitBallX());
-            editor.putFloat("SAVED.INITBALLY", rData.getInitBallY());
-            editor.putFloat("SAVED.INITSPEEDX", rData.getInitBallXSpeed());
-            editor.putFloat("SAVED.INITSPEEDY", rData.getInitBallYSpeed());
-        }
-        editor.commit();
-	}
+    	VolleySingleton.getInstance(mainActivity.getApplicationContext()).addToRequestQueue(request);
+    }
 
     private void initBallAndBar() {
-    	float barInitX = Constants.BAR_INIT_X_FACTOR * gameViewWidth;
-    	float myBarY = Constants.MY_BAR_Y_FACTOR * gameViewHeight;
-    	float rivalBarY = Constants.RIVAL_BAR_Y_FACTOR * gameViewHeight;
-    	ballInitX = Constants.BALL_INIT_X_FACTOR * gameViewWidth;
-    	ballInitY = Constants.BALL_INIT_Y_FACTOR * gameViewHeight;
-    	ballInitXSpeed = Constants.BALL_INIT_XSPEED_FACTOR * gameViewWidth;
-    	ballInitYSpeed = Constants.BALL_INIT_YSPEED_FACTOR * gameViewHeight;
-    	
-        Bar myBar = new Bar(barInitX, myBarY, gameViewWidth, gameViewHeight);
-        rData.setMyBar(myBar);
-        Ball ball1 = new Ball(ballInitX, ballInitY, ballInitXSpeed, ballInitYSpeed, gameViewWidth, gameViewHeight, myBar, true);
-        rData.setBall1(ball1);
-        
-        Bar rivalBar = new Bar(barInitX, rivalBarY, gameViewWidth, gameViewHeight);
-        Ball ball2 = new Ball(gameViewWidth - ballInitX, gameViewHeight - ballInitY, -ballInitXSpeed, -ballInitYSpeed, gameViewWidth, gameViewHeight, myBar, false);
+    	Bar myBar = new Bar(Constants.BAR_INIT_X_FACTOR, Constants.BAR_INIT_Y_FACTOR);
+        Bar rivalBar = new Bar(Constants.BAR_INIT_X_FACTOR, Constants.OPPOSITE_BAR_Y_FACTOR);
+    	rData.setMyBar(myBar);
         rData.setRivalBar(rivalBar);
-        rData.setBall2(ball2);
+        
+        if (rData.getMapSide().equals("A")) { //I own ball1
+        	Ball ball1 = new Ball(1, 
+            		Constants.BALL_INIT_X_FACTOR,
+            		Constants.BALL_INIT_Y_FACTOR, 
+            		Constants.BALL_INIT_XSPEED_FACTOR,
+            		Constants.BALL_INIT_YSPEED_FACTOR,
+            		myBar, true);
+            rData.setBall1(ball1);
+            
+            Ball ball2 = new Ball(2,
+            		Constants.BALL_INIT_X_FACTOR,
+            		1 - Constants.BALL_INIT_Y_FACTOR,
+            		- Constants.BALL_INIT_XSPEED_FACTOR,
+            		- Constants.BALL_INIT_YSPEED_FACTOR,
+            		myBar, false);
+            rData.setBall2(ball2);
+        } else { // I own ball2
+        	Ball ball1 = new Ball(1,
+            		Constants.BALL_INIT_X_FACTOR,
+            		1 - Constants.BALL_INIT_Y_FACTOR,
+            		- Constants.BALL_INIT_XSPEED_FACTOR,
+            		- Constants.BALL_INIT_YSPEED_FACTOR,
+            		myBar, false);
+            rData.setBall1(ball1);
+            
+            Ball ball2 = new Ball(2, 
+            		Constants.BALL_INIT_X_FACTOR,
+            		Constants.BALL_INIT_Y_FACTOR, 
+            		Constants.BALL_INIT_XSPEED_FACTOR,
+            		Constants.BALL_INIT_YSPEED_FACTOR,
+            		myBar, true);
+            rData.setBall2(ball2);
+        }
+        
+//        ballInitX = Constants.BALL_INIT_X_FACTOR * gameViewWidth;
+//    	ballInitY = Constants.BALL_INIT_Y_FACTOR * gameViewHeight;
+//    	ballInitXSpeed = Constants.BALL_INIT_XSPEED_FACTOR * gameViewWidth;
+//    	ballInitYSpeed = Constants.BALL_INIT_YSPEED_FACTOR * gameViewHeight;
+//        rData.setBall1X(ballInitX);
+//    	rData.setBall1Y(ballInitY);
+//    	rData.setBall1XSpeed(ballInitXSpeed);
+//    	rData.setBall1YSpeed(ballInitYSpeed);
+//    	rData.setBall1Owned(isSideA);
+//        rData.setBall2X(gameViewWidth - ballInitX);
+//    	rData.setBall2Y(gameViewHeight - ballInitY);
+//    	rData.setBall2XSpeed(-ballInitXSpeed);
+//    	rData.setBall2YSpeed(-ballInitYSpeed);
+//    	rData.setBall2Owned(!isSideA);
+        
         Log.d(TAG, "initBallAndBar");
+        Log.d(TAG, "Phone:" + rData.getMyName() + "; mapSide: " + rData.getMapSide());
     }
 
 }

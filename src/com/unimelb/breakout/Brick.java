@@ -12,6 +12,9 @@ package com.unimelb.breakout;
 
 import java.io.Serializable;
 
+/*
+ * Also in this class, the measurements are relative values like Ball and Bar
+ */
 public class Brick implements Serializable{
     private static final long serialVersionUID = 3947787005416186023L;
     
@@ -20,7 +23,7 @@ public class Brick implements Serializable{
     private volatile float brickX;
 	private volatile float brickY;
 	
-	private boolean alive;
+	private volatile boolean alive = true;
 	private boolean special;
 	
 	public Brick(int brickId, float brickX, float brickY, boolean special){
@@ -28,7 +31,7 @@ public class Brick implements Serializable{
 		this.brickX = brickX;
 		this.brickY = brickY;
         this.special = special;
-        this.alive = true;
+//        this.alive = true;
 	}
 	
 	public int getId() {

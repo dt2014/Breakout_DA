@@ -14,12 +14,8 @@ package com.unimelb.breakout;
 import java.io.InputStream;
 import java.util.List;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.app.AlertDialog.Builder;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -27,7 +23,7 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
     private static final String TAG = LoadFilesTask.class.getName();
     private volatile RuntimeData rData;
     
-    private ProgressDialog pg;
+    private ProgressDialog progressDialog;
     private int steps = 0;
     private Context context;
     
@@ -38,14 +34,14 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();         
-        pg = new ProgressDialog(context);
-        pg.setCancelable(false);
-        pg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        pg.setProgress(0);
-        pg.setMax(100);
-        pg.setTitle("Load Map File");
-        pg.setMessage("loading...");
-        pg.show();
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setProgress(0);
+        progressDialog.setMax(100);
+        progressDialog.setTitle("Load Map File");
+        progressDialog.setMessage("loading...");
+        progressDialog.show();
              
     }; 
     
@@ -69,10 +65,13 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
                 //Thread.sleep(2000);
 //                Log.d(TAG,json);
                 if (json != null) {
-                    List<Brick> brickData = Utils.extraMapData(json, rData);
-                    Bricks bricks = new Bricks(rData.getGameViewWidth(), 
-                            rData.getGameViewHeight());
+                    List<Brick> brickData = Utils.extraMapData(json);
+                    Bricks bricks = new Bricks();
                     bricks.initBricks(brickData);
+//                    Log.d(TAG, String.valueOf(bricks.getBricks() == null)); // false
+//                    Log.d(TAG, String.valueOf(bricks.getBricks().get(5).isAlive()));
+//                    Log.d(TAG, String.valueOf(bricks.getBricks().get(5).getId()));
+//                    Log.d(TAG, String.valueOf(bricks.getBricks().get(5).isSpecial()));
                     rData.setBricks(bricks);
                     //Thread.sleep(1000);
                     publishProgress("Retriving Done");
@@ -93,14 +92,14 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
     @Override
     public void onProgressUpdate(String... params) {
         super.onProgressUpdate(params);
-        if (pg != null) {
+        if (progressDialog != null) {
             steps=steps+1;
-            pg.setMessage(params[0]);
-            pg.setProgress(Math.round(100*((float)steps)/6));
-            pg.show();
+            progressDialog.setMessage(params[0]);
+            progressDialog.setProgress(Math.round(100*((float)steps)/6));
+            progressDialog.show();
             if(steps == 6)
             {   
-                pg.dismiss();
+                progressDialog.dismiss();
                 steps = 0;
             }
         }
@@ -118,7 +117,7 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
         } else if (! isCancelled()) {
         	Utils.showError(context, R.string.err_load_map);
         }
-        if(pg!=null)
-            pg.dismiss();
+        if(progressDialog!=null)
+            progressDialog.dismiss();
     }
 }

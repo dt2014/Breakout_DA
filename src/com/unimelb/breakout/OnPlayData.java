@@ -15,25 +15,27 @@ public class OnPlayData implements Serializable {
 
     private static final long serialVersionUID = -7169443296866307285L;
 
-    private volatile int score;
-    private volatile int lives;
-    private volatile boolean isClear; 
-    public int getScore() {
-        return score;
+    private volatile boolean gameIsOn = true;
+    private volatile boolean bricksAreGone;
+    private volatile boolean ownershipChanged;
+    
+    
+    public boolean gameIsOn() {
+        return gameIsOn;
     }
-    public void setScore(int score) {
-        this.score = score;
+    public void setGameOn(boolean gameIsOn) {
+        this.gameIsOn = gameIsOn;
     }
-    public int getLives() {
-        return lives;
+    public boolean bricksAreGone() {
+        return bricksAreGone;
     }
-    public void setLives(int lives) {
-        this.lives = lives;
+    public void setBricksGone(boolean bricksAreGone) {
+        this.bricksAreGone = bricksAreGone;
     }
-    public boolean isClear() {
-        return isClear;
-    }
-    public void setClear(boolean clear) {
-        this.isClear = clear;
-    }
+	public boolean isOwnershipChanged() {
+		return ownershipChanged;
+	}
+	public void setOwnershipChanged(boolean ownershipChanged) {
+		this.ownershipChanged = ownershipChanged;
+	}
 }
