@@ -51,33 +51,11 @@ public class Ball implements Serializable {
     	paintOwned.setColor(Color.YELLOW);
     	paintOther.setAntiAlias(true);
     	paintOther.setColor(Color.GRAY);
-    	
-//        mapSide = rData.getMapSide();
-//    	this.ballId = ballId;
-//    	if (ballId == 1) {
-//    		ballX = rData.getBall1X();
-//    		ballY = rData.getBall1Y();
-//    		ballXSpeed = rData.getBall1XSpeed();
-//    		ballYSpeed = rData.getBall1YSpeed();
-//    		owned = rData.isBall1Owned();
-//    	} else { //ballId == 2
-//    		ballX = rData.getBall2X();
-//    		ballY = rData.getBall2Y();
-//    		ballXSpeed = rData.getBall2XSpeed();
-//    		ballYSpeed = rData.getBall2YSpeed();
-//    		owned = rData.isBall2Owned();
-//    	}
-//        bar = rData.getMyBar();
-//        ballRadius = (float) (screenWidth * Constants.BALL_RADIUS_FACTOR);
     }
     
     public int getBallId() {
 		return ballId;
 	}
-
-//	public void setBallId(int ballId) {
-//		this.ballId = ballId;
-//	}
 
 	public boolean isOwned() {
 		return owned;
@@ -117,6 +95,13 @@ public class Ball implements Serializable {
 
 	public void setYSpeed(float ySpeed) {
 		this.ballYSpeed = ySpeed;
+	}
+	
+	public void setPositionAndSpeed(float x, float y, float xSpeed, float ySpeed) {
+		this.ballX = x;
+    	this.ballY = y;
+    	this.ballXSpeed = xSpeed;
+    	this.ballYSpeed = ySpeed;
 	}
 	
 	public OnPlayData getOnPlayInfo() {
@@ -180,8 +165,10 @@ public class Ball implements Serializable {
                     ballXSpeed=-ballXSpeed;
                     ballYSpeed=-ballYSpeed;
 	            }
+			    if (!owned) { //for changed ownership
+			    	onPlayData.setOwnershipChanged(true);
+			    }
 			    this.setOwned(true); // change the owner ship of the ball
-			    onPlayData.setOwnershipChanged(true);
 			}
 		}
 	}

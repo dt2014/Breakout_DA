@@ -69,6 +69,10 @@ public class Bricks implements Serializable {
         return aliveBrickCount;
     }
     
+    public void setAlive(int brickId, boolean alive) {
+    	this.bricks.get(brickId - 1).setAlive(alive); 
+    }
+    
     /*
      * Check brick & ball collision here
      * Return the brickId if collision occurs, otherwise return 0

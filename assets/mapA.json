@@ -1,0 +1,74 @@
+{
+	"bricks": [{
+		"brickId": 1,
+		"brickX": 0.02f,
+		"brickY": 0.49f,
+		"special": false
+	},
+	{
+		"brickId": 2,
+		"brickX": 0.10f,
+		"brickY": 0.49f,
+		"special": false
+	},
+	{
+		"brickId": 3,
+		"brickX": 0.18f,
+		"brickY": 0.49f,
+		"special": false
+	},
+	{
+		"brickId": 4,
+		"brickX": 0.26f,
+		"brickY": 0.49f,
+		"special": false
+	},
+	{
+		"brickId": 5,
+		"brickX": 0.34f,
+		"brickY": 0.49f,
+		"special": false
+	},
+	{
+		"brickId": 6,
+		"brickX": 0.42f,
+		"brickY": 0.49f,
+		"special": true
+	},
+	{
+		"brickId": 7,
+		"brickX": 0.50f,
+		"brickY": 0.49f,
+		"special": false
+	},
+	{
+		"brickId": 8,
+		"brickX": 0.58f,
+		"brickY": 0.49f,
+		"special": false
+	},
+	{
+		"brickId": 9,
+		"brickX": 0.66f,
+		"brickY": 0.49f,
+		"special": false
+	},
+	{
+		"brickId": 10,
+		"brickX": 0.74f,
+		"brickY": 0.49f,
+		"special": false
+	},
+	{
+		"brickId": 11,
+		"brickX": 0.82f,
+		"brickY": 0.49f,
+		"special": false
+	},
+	{
+		"brickId": 12,
+		"brickX": 0.90f,
+		"brickY": 0.49f,
+		"special": false
+	}]
+}

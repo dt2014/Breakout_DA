@@ -25,7 +25,7 @@ import android.view.View;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    public final String TAG = MainActivity.class.getName();    
+    public final static String TAG = MainActivity.class.getName();    
 
     private volatile RuntimeData rData;
 	private WorldView worldView;
@@ -112,8 +112,8 @@ public class MainActivity extends Activity {
         this.runOnUiThread(new Runnable() {     
             public void run() {
             	myName.setText(rData.getMyName());
-                myScore.setText(String.valueOf(rData.getMyScore()));
                 rivalName.setText(rData.getRivalName());
+                myScore.setText(String.valueOf(rData.getMyScore()));
                 rivalScore.setText(String.valueOf(rData.getRivalScore()));
             } 
          });
