@@ -23,34 +23,36 @@ public class RuntimeData implements Serializable {
     private volatile int gameViewHeight;
     
     private volatile Ball ball1;
-    private volatile float ball1X;
-    private volatile float ball1Y;
-    private volatile float ball1XSpeed;
-    private volatile float ball1YSpeed;
+//    private volatile float ball1X;
+//    private volatile float ball1Y;
+//    private volatile float ball1XSpeed;
+//    private volatile float ball1YSpeed;
+//    private volatile boolean ball1Owned;
 
     private volatile Ball ball2;
-    private volatile float ball2X;
-    private volatile float ball2Y;
-    private volatile float ball2XSpeed;
-    private volatile float ball2YSpeed;
+//    private volatile float ball2X;
+//    private volatile float ball2Y;
+//    private volatile float ball2XSpeed;
+//    private volatile float ball2YSpeed;
+//    private volatile boolean ball2Owned;
     
-    private volatile float initBallX; // factor to screen view
-    private volatile float initBallY; // factor to screen view
-    private volatile float initBallXSpeed; // factor to screen view
-    private volatile float initBallYSpeed; // factor to screen view
+//    private volatile float initBallX; // factor to screen view
+//    private volatile float initBallY; // factor to screen view
+//    private volatile float initBallXSpeed; // factor to screen view
+//    private volatile float initBallYSpeed; // factor to screen view
     
     private volatile Bar myBar;
-    private volatile float myBarX;
-    private volatile float myBarXSpeed;
+//    private volatile float myBarX;
+//    private volatile float myBarXSpeed;
     
     private volatile Bar rivalBar;
-    private volatile float rivalBarX;
-    private volatile float rivalBarXSpeed;
+//    private volatile float rivalBarX;
+//    private volatile float rivalBarXSpeed;
     
     private volatile Bricks bricks;
 
     private volatile String myName;
-    private volatile String rivalName =" ";
+    private volatile String rivalName;
     
     private volatile int myScore;
     private volatile int rivalScore;
@@ -129,47 +131,55 @@ public class RuntimeData implements Serializable {
 		this.rivalScore = rivalScore;
 	}
 
-	public float getBall1X() {
-        return ball1X;
-    }
+//	public float getBall1X() {
+//        return ball1X;
+//    }
+//
+//    public void setBall1X(float ball1X) {
+//        this.ball1X = ball1X;
+//    }
+//
+//    public float getInitBallX() {
+//        return initBallX;
+//    }
+//
+//    public void setInitBallX(float initBallX) {
+//        this.initBallX = initBallX;
+//    }
+//
+//    public float getBall1Y() {
+//        return ball1Y;
+//    }
+//
+//    public void setBall1Y(float ball1Y) {
+//        this.ball1Y = ball1Y;
+//    }
+//
+//    public float getBall1XSpeed() {
+//        return ball1XSpeed;
+//    }
+//
+//    public void setBall1XSpeed(float ball1XSpeed) {
+//        this.ball1XSpeed = ball1XSpeed;
+//    }
+//
+//    public float getBall1YSpeed() {
+//        return ball1YSpeed;
+//    }
+//
+//    public void setBall1YSpeed(float ball1YSpeed) {
+//        this.ball1YSpeed = ball1YSpeed;
+//    }
+//    
+//    public boolean isBall1Owned() {
+//		return ball1Owned;
+//	}
+//
+//	public void setBall1Owned(boolean ball1Owned) {
+//		this.ball1Owned = ball1Owned;
+//	}
 
-    public void setBall1X(float ball1X) {
-        this.ball1X = ball1X;
-    }
-
-    public float getInitBallX() {
-        return initBallX;
-    }
-
-    public void setInitBallX(float initBallX) {
-        this.initBallX = initBallX;
-    }
-
-    public float getBall1Y() {
-        return ball1Y;
-    }
-
-    public void setBall1Y(float ball1Y) {
-        this.ball1Y = ball1Y;
-    }
-
-    public float getBall1XSpeed() {
-        return ball1XSpeed;
-    }
-
-    public void setBall1XSpeed(float ball1XSpeed) {
-        this.ball1XSpeed = ball1XSpeed;
-    }
-
-    public float getBall1YSpeed() {
-        return ball1YSpeed;
-    }
-
-    public void setBall1YSpeed(float ball1YSpeed) {
-        this.ball1YSpeed = ball1YSpeed;
-    }
-    
-    public Ball getBall2() {
+	public Ball getBall2() {
 		return ball2;
 	}
 
@@ -177,77 +187,85 @@ public class RuntimeData implements Serializable {
 		this.ball2 = ball2;
 	}
 
-	public float getBall2X() {
-		return ball2X;
-	}
-
-	public void setBall2X(float ball2x) {
-		ball2X = ball2x;
-	}
-
-	public float getBall2Y() {
-		return ball2Y;
-	}
-
-	public void setBall2Y(float ball2y) {
-		ball2Y = ball2y;
-	}
-
-	public float getBall2XSpeed() {
-		return ball2XSpeed;
-	}
-
-	public void setBall2XSpeed(float ball2xSpeed) {
-		ball2XSpeed = ball2xSpeed;
-	}
-
-	public float getBall2YSpeed() {
-		return ball2YSpeed;
-	}
-
-	public void setBall2YSpeed(float ball2ySpeed) {
-		ball2YSpeed = ball2ySpeed;
-	}
-
-	public float getInitBallY() {
-        return initBallY;
-    }
-
-    public void setInitBallY(float initBallY) {
-        this.initBallY = initBallY;
-    }
-
-    public float getInitBallXSpeed() {
-        return initBallXSpeed;
-    }
-
-    public void setInitBallXSpeed(float initBallXSpeed) {
-        this.initBallXSpeed = initBallXSpeed;
-    }
-
-    public float getInitBallYSpeed() {
-        return initBallYSpeed;
-    }
-
-    public void setInitBallYSpeed(float initBallYSpeed) {
-        this.initBallYSpeed = initBallYSpeed;
-    }
-
-    public float getMyBarX() {
-        return myBarX;
-    }
-
-    public void setMyBarX(float myBarX) {
-        this.myBarX = myBarX;
-    }
-
-    public float getMyBarXSpeed() {
-        return myBarXSpeed;
-    }
-
-    public void setMyBarXSpeed(float myBarXSpeed) {
-        this.myBarXSpeed = myBarXSpeed;
-    }
+//	public float getBall2X() {
+//		return ball2X;
+//	}
+//
+//	public void setBall2X(float ball2x) {
+//		ball2X = ball2x;
+//	}
+//
+//	public float getBall2Y() {
+//		return ball2Y;
+//	}
+//
+//	public void setBall2Y(float ball2y) {
+//		ball2Y = ball2y;
+//	}
+//
+//	public float getBall2XSpeed() {
+//		return ball2XSpeed;
+//	}
+//
+//	public void setBall2XSpeed(float ball2xSpeed) {
+//		ball2XSpeed = ball2xSpeed;
+//	}
+//
+//	public float getBall2YSpeed() {
+//		return ball2YSpeed;
+//	}
+//
+//	public void setBall2YSpeed(float ball2ySpeed) {
+//		ball2YSpeed = ball2ySpeed;
+//	}
+//
+//	public boolean isBall2Owned() {
+//		return ball2Owned;
+//	}
+//
+//	public void setBall2Owned(boolean ball2Owned) {
+//		this.ball2Owned = ball2Owned;
+//	}
+//
+//	public float getInitBallY() {
+//        return initBallY;
+//    }
+//
+//    public void setInitBallY(float initBallY) {
+//        this.initBallY = initBallY;
+//    }
+//
+//    public float getInitBallXSpeed() {
+//        return initBallXSpeed;
+//    }
+//
+//    public void setInitBallXSpeed(float initBallXSpeed) {
+//        this.initBallXSpeed = initBallXSpeed;
+//    }
+//
+//    public float getInitBallYSpeed() {
+//        return initBallYSpeed;
+//    }
+//
+//    public void setInitBallYSpeed(float initBallYSpeed) {
+//        this.initBallYSpeed = initBallYSpeed;
+//    }
+//
+//    public float getMyBarX() {
+//        return myBarX;
+//    }
+//
+//    public void setMyBarX(float myBarX) {
+//        this.myBarX = myBarX;
+//    }
+//
+//    public float getMyBarXSpeed() {
+//        return myBarXSpeed;
+//    }
+//
+//    public void setMyBarXSpeed(float myBarXSpeed) {
+//        this.myBarXSpeed = myBarXSpeed;
+//    }
 
     public Bar getRivalBar() {
 		return rivalBar;
@@ -257,21 +275,21 @@ public class RuntimeData implements Serializable {
 		this.rivalBar = rivalBar;
 	}
 
-	public float getRivalBarX() {
-		return rivalBarX;
-	}
-
-	public void setRivalBarX(float rivalBarX) {
-		this.rivalBarX = rivalBarX;
-	}
-
-	public float getRivalBarXSpeed() {
-		return rivalBarXSpeed;
-	}
-
-	public void setRivalBarXSpeed(float rivalBarXSpeed) {
-		this.rivalBarXSpeed = rivalBarXSpeed;
-	}
+//	public float getRivalBarX() {
+//		return rivalBarX;
+//	}
+//
+//	public void setRivalBarX(float rivalBarX) {
+//		this.rivalBarX = rivalBarX;
+//	}
+//
+//	public float getRivalBarXSpeed() {
+//		return rivalBarXSpeed;
+//	}
+//
+//	public void setRivalBarXSpeed(float rivalBarXSpeed) {
+//		this.rivalBarXSpeed = rivalBarXSpeed;
+//	}
 
 	public String getMyName() {
         return myName;

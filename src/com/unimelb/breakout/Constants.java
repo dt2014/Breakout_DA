@@ -14,22 +14,36 @@ public class Constants {
 	/**
 	 * 
 	 */
-	public static String SEVER_URL = "letsbreakout.comxa.com/api.php";
-	public static final int NETWORK_TIMEOUT = 2000;
-	public static final int TRANSFER_TIMEOUT = 3000;
-	
+	public static String SEVER_URL = "http://letsbreakout.comxa.com/api.php";
 	
 	/**
-	 *  ballRadius = screenWidth * BALL_RADIUS_FACTOR
+	 * Timing in milliseconds
+	 */
+	public static final int INITGAME_TASK_TIMEOUT = 10000;
+	public static final int NETWORK_TIMEOUT = 6000;
+	public static final int TRANSFER_TIMEOUT = 6000;
+	public static final int GAME_COUNTDOWN = 5000;
+	public static final int COUNTDOWN_INTERVAL = 1000;
+	public static final int GAME_THREAD_SLEEP = 10;
+	
+	/**
+	 * Counts for game-thread-sleep rounds for sending network requests to update game dynamics
+	 */
+//	public static final int UPDATE_BALL = 
+	
+	public static final float GAMEVIEW_HEIGHT_FACTOR = 0.85f;
+	
+	/**
+	 *  actual ballRadius = screenWidth * BALL_RADIUS_FACTOR
 	 */
 	public static final float BALL_RADIUS_FACTOR = 0.015f;
 	
 	/**
 	 * The initial position and speed of the balls
-	 * ballInitX = screenWidth * BALL_INIT_X_FACTOR
-	 * ballInitY = screenHeight * BALL_INIT_Y_FACTOR
-	 * ballInitXSpeed = screenWidth * BALL_INIT_X_FACTOR
-	 * ballInitYSpeed = screenHeight * BALL_INIT_YSPEED_FACTOR
+	 * actual ballInitX = screenWidth * BALL_INIT_X_FACTOR
+	 * actual ballInitY = screenHeight * BALL_INIT_Y_FACTOR
+	 * actual ballInitXSpeed = screenWidth * BALL_INIT_X_FACTOR
+	 * actual ballInitYSpeed = screenHeight * BALL_INIT_YSPEED_FACTOR
 	 */
 	public static final float BALL_INIT_X_FACTOR = 0.5f;
 	public static final float BALL_INIT_Y_FACTOR = 0.6f;
@@ -45,17 +59,17 @@ public class Constants {
     
     /**
      * The initial position of barX for both self and rival sides
-	 * barInitX = screenWidth * INIT_BAR_X_FACTOR
+	 * actual barInitX = screenWidth * INIT_BAR_X_FACTOR
 	 */
     public static final float BAR_INIT_X_FACTOR = (1 - BAR_LENGTH_FACTOR) / 2;
     
     /**
      * The position of barY
-     * myBarY = screenHeight * MY_BAR_Y_FACTOR
-     * rivalBarY = screenHeight * RIVAL_BAR_Y_FACTOR
+     * actual myBarY = screenHeight * MY_BAR_Y_FACTOR
+     * actual rivalBarY = screenHeight * RIVAL_BAR_Y_FACTOR
      */
-    public static final float MY_BAR_Y_FACTOR = 0.95f;
-    public static final float RIVAL_BAR_Y_FACTOR = 1 - MY_BAR_Y_FACTOR - BAR_HEIGHT_FACTOR;
+    public static final float BAR_INIT_Y_FACTOR = 0.95f;
+    public static final float OPPOSITE_BAR_Y_FACTOR = 1 - BAR_INIT_Y_FACTOR - BAR_HEIGHT_FACTOR;
     
 	/**
 	 *  birckLength = screenWidth * BRICK_LENGTH_FACTOR

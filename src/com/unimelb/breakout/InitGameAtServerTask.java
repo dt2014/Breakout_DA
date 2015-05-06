@@ -10,22 +10,16 @@ package com.unimelb.breakout;
  *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
  */
 
-import java.lang.reflect.Type;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.app.AlertDialog.Builder;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -33,7 +27,7 @@ public class InitGameAtServerTask extends AsyncTask<RuntimeData, String, Boolean
 	private static final String TAG = InitGameAtServerTask.class.getName();
     private volatile RuntimeData rData;
     
-	private ProgressDialog pg;
+	private ProgressDialog progressDialog;
     private int steps = 0;
 	private Context context;
 	
@@ -41,60 +35,58 @@ public class InitGameAtServerTask extends AsyncTask<RuntimeData, String, Boolean
 		this.context = context;
 	}
 	
-	
 	@Override
     protected void onPreExecute() {
 		super.onPreExecute();         
-        pg = new ProgressDialog(context);
-        pg.setCancelable(false);
-        pg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        pg.setProgress(0);
-        pg.setMax(100);
-        pg.setTitle("Initiate New Game");
-        pg.setMessage("Connecting server...");
-        pg.show();
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setCancelable(true);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setProgress(0);
+        progressDialog.setMax(3);
+        progressDialog.setTitle("Initiate New Game");
+        progressDialog.setMessage("Connecting server...");
+        progressDialog.show();
     }
-	
 	
 	@Override
 	protected Boolean doInBackground(RuntimeData... params) {
 		rData = params[0];
 		BufferedReader in = null;
 		try {
-//			URL serverURL = new URL(Constants.SEVER_URL);
-//			URLConnection urlConnection = serverURL.openConnection();
-//			urlConnection.setConnectTimeout(Constants.NETWORK_TIMEOUT);
-//			urlConnection.setReadTimeout(Constants.TRANSFER_TIMEOUT);
-//			urlConnection.setRequestProperty("user-agent", "Android");
-//			urlConnection.setDoOutput(true);
-//			urlConnection.setDoInput(true);
-//            PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
-//            String body = "command=start&player_name=" + rData.getMyName();
-//            out.print(body);
-//            out.flush();
-//            out.close();
-//            in = new BufferedReader(new InputStreamReader(
-//            		urlConnection.getInputStream(), "UTF-8"));
-//            String json = in.readLine();
-			
-			String json = "{\"response\":\"start\", \"map_side\":\"A\", \"rival_name\":\"Haha\"}";
+			publishProgress("Connecting server...");
+			String url = Constants.SEVER_URL + "?command=start&player_name=" + rData.getMyName();
+			URL serverURL = new URL(url);
+			URLConnection urlConnection = serverURL.openConnection();
+			urlConnection.setConnectTimeout(Constants.NETWORK_TIMEOUT);
+			urlConnection.setReadTimeout(Constants.TRANSFER_TIMEOUT);
+			urlConnection.setDoOutput(true);
+			urlConnection.setDoInput(true);
+			publishProgress("Waiting for response from server...");
+            in = new BufferedReader(new InputStreamReader(
+            		urlConnection.getInputStream(), "UTF-8"));
+            String json = in.readLine();
+
 	        if (json != null) {
+	        	publishProgress("Parsing response from server...");
+	            Log.i(TAG, json);
 				Gson gson = new Gson();
 				JsonObject jobj = gson.fromJson(json, JsonObject.class);
 				if (jobj.get("response").getAsString().equals("start")) {
 					rData.setMapSide(jobj.get("map_side").getAsString());
-					rData.setRivalName(jobj.get("rival_name").getAsString());
+					rData.setRivalName(jobj.get("rival_name").getAsString());					
 					return Boolean.TRUE;
+				} else if (jobj.get("response").getAsString().equals("No rival")) {
+					progressDialog.dismiss();
+					Utils.showError(context, R.string.err_no_rival);
+					this.cancel(true);
 				}
 	        }
 		}  catch (Exception e) {
-			
 		} finally {
 			try {
 				if (in != null) {
 					in.close();
-				} 
-			
+				}
 			} catch (Exception e) {
 			}		
 		}
@@ -104,14 +96,13 @@ public class InitGameAtServerTask extends AsyncTask<RuntimeData, String, Boolean
 	@Override
     protected void onProgressUpdate(String... params) {
 		super.onProgressUpdate(params);
-        if (pg != null) {
-        	steps=steps+1;
-            pg.setMessage(params[0]);
-            pg.setProgress(Math.round(100*((float)steps)/6));
-            pg.show();
-            if(steps == 6)
-            {	
-            	pg.dismiss();
+        if (progressDialog != null) {
+        	steps = steps + 1;
+            progressDialog.setMessage(params[0]);
+            progressDialog.setProgress(steps);
+            progressDialog.show();
+            if(steps >= 3) {	
+            	progressDialog.dismiss();
             	steps = 0;
             }
         }
@@ -119,37 +110,17 @@ public class InitGameAtServerTask extends AsyncTask<RuntimeData, String, Boolean
 	
 	@Override
 	protected void onPostExecute(Boolean result) {
-		if (! isCancelled() && result) {
-		final LoadFilesTask task = new LoadFilesTask(context);
-          if (context.getClass() == MenuActivity.class) {
-        	  task.execute(rData);
-          } else { 
-          	showError();
-          }
-      } else if (! isCancelled()) {
-          showError();
-      }
-      if(pg!=null)
-          pg.dismiss();
+		if (!isCancelled() && result) {
+			final LoadFilesTask task = new LoadFilesTask(context);
+			if (context.getClass() == MenuActivity.class) {
+				task.execute(rData);
+			} else {
+				Utils.showError(context, R.string.err_init_game);
+			}
+		} else if (!isCancelled()) {
+			Utils.showError(context, R.string.err_init_game);
+		}
+		if (progressDialog != null)
+			progressDialog.dismiss();
 	}
-	 
-	public void showError() {
-	        ((Activity) context).runOnUiThread(new Runnable() {
-	            public void run() {
-	                AlertDialog.Builder builder = new Builder(context);
-	                builder.setMessage(R.string.err_init_game);
-	                builder.setCancelable(true);
-	                builder.setPositiveButton(R.string.lbl_back, new DialogInterface.OnClickListener() {
-	                    @Override
-	                    public void onClick(DialogInterface dialog, int which) {
-	                        dialog.cancel();
-	                        if (context.getClass().isInstance(MainActivity.class)) {
-	                            ((Activity) context).finish();
-	                        }
-	                    }
-	                });
-	                builder.create().show();
-	            }
-	        });
-	    }
 }

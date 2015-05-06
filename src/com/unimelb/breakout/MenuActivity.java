@@ -10,6 +10,7 @@ package com.unimelb.breakout;
  *          Fengmin Deng, 659332, dengf@student.unimelb.edu.au
  */
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
@@ -26,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
 
 public class MenuActivity extends Activity{
     private static final String TAG = MenuActivity.class.getName();
@@ -131,26 +133,39 @@ public class MenuActivity extends Activity{
         Log.i(TAG,"menu onPause");
         super.onPause();
     }
+
+    @Override
+    protected void onStop() {
+    	super.onStop();
+//    	RequestQueue queue = VolleySingleton.getInstance(this.getApplicationContext()).getRequestQueue();
+//        if (queue != null) {
+//        	queue.cancelAll(TAG);
+//        }
+        Log.i(TAG, "menu onStop");
+    }
     
     /*
      * send my name to server to initiate the game and get back rival_name & map_side
      */
     private void initGameAtServer() {
+//    	Utils.deActivateFromServer(this, rData.getMyName());
     	final InitGameAtServerTask task = new InitGameAtServerTask(this);
         task.execute(rData);
         new Thread() {
             @Override
             public void run() {
                 try {
-                    task.get(5000, TimeUnit.MILLISECONDS);
+                    task.get(Constants.INITGAME_TASK_TIMEOUT, TimeUnit.MILLISECONDS);
+                } catch (CancellationException e) {
+        			Log.i(TAG, e.toString());
                 } catch (Exception e) {
+        			Log.i(TAG, e.toString());
                     task.cancel(true);
-                    task.showError();
+                    Utils.showError(MenuActivity.this, R.string.err_init_game);
                 }
             }
         }.start();
 	}
-    
     
     public void callActivityForResult(Class<?> activityClass) {
         Bundle extras = new Bundle();

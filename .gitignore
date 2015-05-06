@@ -37,7 +37,7 @@ Icon
 
 .settings/
 bin/**/*
-!bin/Breakout.apk
+!bin/Breakout_DA.apk
 .classpath
 .project
 .gitattributes

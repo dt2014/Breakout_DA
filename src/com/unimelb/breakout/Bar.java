@@ -15,59 +15,68 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+/*
+ * All measurements in this class are relative values to the game view 
+ * width (for x) and height (for y) except for the method to draw the
+ * bar on canvas.
+ */
 public class Bar implements Serializable {
     private static final long serialVersionUID = 6816443624906944960L;
 
-    private volatile float barLength;
-    private volatile float barHeight;
+//    private volatile float barLength;
+//    private volatile float barHeight;
     private volatile float barX;
     private volatile float barY;
     private volatile float oldTouchX;
     private volatile float barXSpeed;
     
-    private int screenWidth;
-    private int screenHeight;
+//    private int screenWidth;
+//    private int screenHeight;
 
     private static final Paint paint = new Paint();
     private volatile boolean isMoved;
     private volatile int count;
     private volatile long prevT;
     
-    public Bar(float barX, float barY, int screenWidth, int screenHeight) {
+    public Bar(float barX, float barY) {
         this.barX = barX;
         this.barY = barY;
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
-
-        barLength = screenWidth * Constants.BAR_LENGTH_FACTOR;
-        barHeight = screenHeight * Constants.BAR_HEIGHT_FACTOR;
         oldTouchX = barX;
         barXSpeed = 0;
         
         paint.setAntiAlias(true);
         paint.setColor(Color.rgb(70, 130, 180)); //steel blue
+//      this.screenWidth = screenWidth;
+//      this.screenHeight = screenHeight;
+//      barLength = screenWidth * Constants.BAR_LENGTH_FACTOR;
+//      barHeight = screenHeight * Constants.BAR_HEIGHT_FACTOR;
     }
 
-    public void onDraw(Canvas canvas) {
-        canvas.drawRect(barX, barY, barX + barLength, barY + barHeight, paint);
+    public void onDraw(Canvas canvas, int screenWidth, int screenHeight) {
+    	canvas.drawRect(barX * screenWidth,
+    			barY * screenHeight,
+    			(barX + Constants.BAR_LENGTH_FACTOR) * screenWidth,
+    			(barY + Constants.BAR_HEIGHT_FACTOR) * screenHeight,
+    			paint);
     }
+    
     public void move(float deltaX, long deltaT) {
         count = 0;
         isMoved = true;
         barX = barX + deltaX;
         if (barX < 0) {
             barX = 0;
-        } else if (barX + barLength > screenWidth) {
-            barX = screenWidth - barLength;
+        } else if (barX + Constants.BAR_LENGTH_FACTOR > 1) {
+            barX = 1 - Constants.BAR_LENGTH_FACTOR;
         }
-        barXSpeed = (deltaX / deltaT * 100);
+        barXSpeed = (deltaX / deltaT * 1000);
         float speedValue = Math.abs(barXSpeed);
         if (speedValue > 0 && speedValue <= 20) {
-            speedValue = 1;
+            speedValue = 0.001f;
         } else if (speedValue > 20 && speedValue <= 30) {
-            speedValue = 2;
+            speedValue = 0.002f;
         } else if (speedValue > 30) {
-            speedValue = 3;
+            speedValue = 0.003f;
         }
         if (barXSpeed > 0) {
             barXSpeed = speedValue;
@@ -76,29 +85,25 @@ public class Bar implements Serializable {
         }
     }
 
-    public float getBarLength() {
-        return barLength;
-    }
-    
-    public float getBarHeight() {
-        return barHeight;
-    }
-    
     public float getBarX() {
 		return barX;
 	}
 
+    public void setBarX(float barX) {
+		this.barX = barX;
+		if (barX < 0) {
+            this.barX = 0;
+        } else if (barX + Constants.BAR_LENGTH_FACTOR > 1) {
+            this.barX = 1 - Constants.BAR_LENGTH_FACTOR;
+        }
+	}
+	
     public float getBarY() {
 		return barY;
 	}
     
-	public void setBarX(float barX) {
-		this.barX = barX;
-		if (barX < 0) {
-            this.barX = 0;
-        } else if (barX + barLength > screenWidth) {
-            this.barX = screenWidth - barLength;
-        }
+    public void setBarY(float barY) {
+		this.barY = barY;
 	}
 	
     public float getOldTouchX() {

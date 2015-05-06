@@ -15,53 +15,69 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+/*
+ * All measurements in this class are relative values to the game view 
+ * width (for x) and height (for y) except for the method to draw the
+ * ball on canvas.
+ */
 public class Ball implements Serializable {
     private static final long serialVersionUID = -1002240139201271969L;
-
-    private volatile float ballRadius;
    
     private volatile float ballX;
     private volatile float ballY;
     private volatile float ballXSpeed;
     private volatile float ballYSpeed;
     
-    private volatile int screenWidth;
-    private volatile int screenHeight;
-    
-    private volatile Bar bar;
+    private volatile Bar myBar;
     
     private volatile OnPlayData onPlayData;
     
-    private static final Paint paint = new Paint();
-    private volatile int ballColor;
+    private static final Paint paintOwned = new Paint();
+    private static final Paint paintOther = new Paint();
     
     private volatile int ballId;
     private volatile boolean owned;
     
-    public Ball(float ballX, float ballY, float ballXSpeed, float ballYSpeed, int screenWidth, int screenHeight, Bar bar, boolean owned) {
-        this.ballX = ballX;
-        this.ballY = ballY;
-        this.ballXSpeed = ballXSpeed;
-        this.ballYSpeed = ballYSpeed;
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
-        this.bar = bar;
-        this.owned = owned;
-        
-        ballRadius = (float) (screenWidth * Constants.BALL_RADIUS_FACTOR);
-
-        paint.setAntiAlias(true);
-        ballColor = owned ? Color.YELLOW : Color.WHITE;
-        paint.setColor(ballColor);
+    public Ball(int ballId, float ballX, float ballY, float ballXSpeed, float ballYSpeed, Bar myBar, boolean owned) {
+    	this.ballId = ballId;
+    	this.ballX = ballX;
+    	this.ballY = ballY;
+    	this.ballXSpeed = ballXSpeed;
+    	this.ballYSpeed = ballYSpeed;
+    	this.myBar = myBar;
+    	this.owned = owned;
+    	
+    	paintOwned.setAntiAlias(true);
+    	paintOwned.setColor(Color.YELLOW);
+    	paintOther.setAntiAlias(true);
+    	paintOther.setColor(Color.GRAY);
+    	
+//        mapSide = rData.getMapSide();
+//    	this.ballId = ballId;
+//    	if (ballId == 1) {
+//    		ballX = rData.getBall1X();
+//    		ballY = rData.getBall1Y();
+//    		ballXSpeed = rData.getBall1XSpeed();
+//    		ballYSpeed = rData.getBall1YSpeed();
+//    		owned = rData.isBall1Owned();
+//    	} else { //ballId == 2
+//    		ballX = rData.getBall2X();
+//    		ballY = rData.getBall2Y();
+//    		ballXSpeed = rData.getBall2XSpeed();
+//    		ballYSpeed = rData.getBall2YSpeed();
+//    		owned = rData.isBall2Owned();
+//    	}
+//        bar = rData.getMyBar();
+//        ballRadius = (float) (screenWidth * Constants.BALL_RADIUS_FACTOR);
     }
     
     public int getBallId() {
 		return ballId;
 	}
 
-	public void setBallId(int ballId) {
-		this.ballId = ballId;
-	}
+//	public void setBallId(int ballId) {
+//		this.ballId = ballId;
+//	}
 
 	public boolean isOwned() {
 		return owned;
@@ -102,17 +118,14 @@ public class Ball implements Serializable {
 	public void setYSpeed(float ySpeed) {
 		this.ballYSpeed = ySpeed;
 	}
-
-	public float getBallRadius() {
-        return ballRadius;
-    }
 	
 	public OnPlayData getOnPlayInfo() {
         return onPlayData;
     }
 
-    public void onDraw(Canvas canvas) {
-        canvas.drawCircle(ballX, ballY, ballRadius, paint);
+    public void onDraw(Canvas canvas, int screenWidth, int screenHeight) {
+    	Paint paint = isOwned() ? paintOwned : paintOther;
+    	canvas.drawCircle(ballX * screenWidth, ballY * screenHeight, Constants.BALL_RADIUS_FACTOR * screenWidth, paint);
     }
 
     public void moveBall() {
@@ -126,49 +139,49 @@ public class Ball implements Serializable {
     }
 	
 	public void detectBoundary() {
-		if(ballX > screenWidth-ballRadius) {
-		    ballX = screenWidth-ballRadius;
+		if (ballX > 1 - Constants.BALL_RADIUS_FACTOR) { //bounce off right edge 
+		    ballX = 1 - Constants.BALL_RADIUS_FACTOR;
     		ballXSpeed = -Math.abs(ballXSpeed);
-    	}
-		else if(ballX < ballRadius) {
-		    ballX = ballRadius;
+    	} else if (ballX < Constants.BALL_RADIUS_FACTOR) {//bounce off left edge
+		    ballX = Constants.BALL_RADIUS_FACTOR;
     		ballXSpeed = Math.abs(ballXSpeed);
     	}
 		
-    	if(ballY < ballRadius) {
-    	    ballY = ballRadius;
+    	if (ballY < Constants.BALL_RADIUS_FACTOR) {//bounce off up edge
+    	    ballY = Constants.BALL_RADIUS_FACTOR;
     	    ballYSpeed = -ballYSpeed;
-    	} else if (ballY > screenHeight-ballRadius){
-    	    ballY = screenHeight-ballRadius;
+    	} else if (ballY > 1 - Constants.BALL_RADIUS_FACTOR){ // reach bottom edge
+    	    ballY = 1 - Constants.BALL_RADIUS_FACTOR;
             ballXSpeed = 0;
             ballYSpeed = 0;
-            onPlayData.setLives(-1);
+            onPlayData.setGameOn(false);
     	}
 	}
 
 	public void detectBarCollision() {
-		if(ballYSpeed < 0) //improve efficiency
+		if (ballYSpeed < 0) //improve efficiency
 			return;
 		else {
-			float upperLine = bar.getBarY();
-			float leftLine = bar.getBarX();
-			float rightLine = bar.getBarX() + bar.getBarLength();
+			float upperLine = myBar.getBarY();
+			float leftLine = myBar.getBarX();
+			float rightLine = myBar.getBarX() + Constants.BAR_LENGTH_FACTOR;
 			
-			if (ballY + ballRadius >= upperLine && ballY < upperLine) {
-			    if(ballX >= leftLine && ballX <= rightLine) {
-			        ballY = upperLine - ballRadius;
+			if (ballY + Constants.BALL_RADIUS_FACTOR >= upperLine && ballY < upperLine) { //ball hits bar
+			    if(ballX >= leftLine && ballX <= rightLine) { //hitting the top of the bar
+			        ballY = upperLine - Constants.BALL_RADIUS_FACTOR;
 			        ballYSpeed = -ballYSpeed;
-                    ballXSpeed = ballXSpeed + bar.getBarXSpeed();
-	            } else if (ballX + 0.707 * ballRadius >= leftLine && ballX < leftLine && ballXSpeed > 0) //0.707 = sqrt(2)/2
-	            {
-	                ballY = upperLine - ballRadius;
+                    ballXSpeed = ballXSpeed + myBar.getBarXSpeed();
+	            } else if (ballX + 0.707 * Constants.BALL_RADIUS_FACTOR >= leftLine && ballX < leftLine && ballXSpeed > 0) { //0.707 = sqrt(2)/2
+	                ballY = upperLine - Constants.BALL_RADIUS_FACTOR; //hitting bar left corner
 	                ballXSpeed = -ballXSpeed;
                     ballYSpeed = -ballYSpeed;
-	            } else if (ballX - 0.707 * ballRadius <= rightLine && ballX > rightLine && ballXSpeed < 0) {
-	                ballY = upperLine - ballRadius;
+	            } else if (ballX - 0.707 * Constants.BALL_RADIUS_FACTOR <= rightLine && ballX > rightLine && ballXSpeed < 0) {
+	                ballY = upperLine - Constants.BALL_RADIUS_FACTOR; //hitting bar right corner
                     ballXSpeed=-ballXSpeed;
                     ballYSpeed=-ballYSpeed;
 	            }
+			    this.setOwned(true); // change the owner ship of the ball
+			    onPlayData.setOwnershipChanged(true);
 			}
 		}
 	}
