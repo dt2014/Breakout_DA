@@ -14,7 +14,8 @@ public class Constants {
 	/**
 	 * 
 	 */
-	public static String SEVER_URL = "http://letsbreakout.comxa.com/api.php";
+//	public static String SEVER_URL = "http://letsbreakout.comxa.com/api.php";
+	public static String SEVER_URL = "http://192.168.0.4/api.php";
 	
 	/**
 	 * Timing in milliseconds
@@ -54,7 +55,7 @@ public class Constants {
 	 * 	barLength = screenWidth * BAR_LENGTH_FACTOR
 	 *  barHeight = screenHeight * BAR_HEIGHT_FACTOR
 	 */
-    public static final float BAR_LENGTH_FACTOR = 0.4f;
+    public static final float BAR_LENGTH_FACTOR = 0.7f;
     public static final float BAR_HEIGHT_FACTOR = 0.02f;
     
     /**
@@ -76,5 +77,5 @@ public class Constants {
 	 *  brickHeight = screenHeight * BAR_HEIGHT_FACTOR
 	 */
     public static final float BRICK_LENGTH_FACTOR = 0.07f;
-    public static final float BRICK_HEIGHT_FACTOR = 0.025f;
+    public static final float BRICK_HEIGHT_FACTOR = 0.02f;
 }

@@ -48,7 +48,7 @@ public class LoadFilesTask extends AsyncTask<RuntimeData, String, Boolean> {
     @Override
     protected Boolean doInBackground(RuntimeData... params) {
             rData = params[0];
-            String fileName = "map.json";
+            String fileName = rData.getMapSide().equals("A") ? "mapA.json" : "mapB.json";
             String json = null;
             InputStream inputStream = null;
             try {

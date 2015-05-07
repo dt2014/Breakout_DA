@@ -23,15 +23,10 @@ import android.graphics.Paint;
 public class Bar implements Serializable {
     private static final long serialVersionUID = 6816443624906944960L;
 
-//    private volatile float barLength;
-//    private volatile float barHeight;
     private volatile float barX;
     private volatile float barY;
     private volatile float oldTouchX;
     private volatile float barXSpeed;
-    
-//    private int screenWidth;
-//    private int screenHeight;
 
     private static final Paint paint = new Paint();
     private volatile boolean isMoved;
@@ -46,10 +41,6 @@ public class Bar implements Serializable {
         
         paint.setAntiAlias(true);
         paint.setColor(Color.rgb(70, 130, 180)); //steel blue
-//      this.screenWidth = screenWidth;
-//      this.screenHeight = screenHeight;
-//      barLength = screenWidth * Constants.BAR_LENGTH_FACTOR;
-//      barHeight = screenHeight * Constants.BAR_HEIGHT_FACTOR;
     }
 
     public void onDraw(Canvas canvas, int screenWidth, int screenHeight) {
