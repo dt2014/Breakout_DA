@@ -274,13 +274,6 @@ class API
             return array('response' => 'player_lost');
         }
         
-        // IF THE THE BALL CHANGED OWNERSHIP
-        if($this->checkOwnerShipChange($player_name))
-        {
-            $owner1 = $this->getOwnerOfBall(1);
-            $owner2 = $this->getOwnerOfBall(2);
-        }
-        
         $stmt = $this->pdo->prepare('SELECT bar_position_x, latest_eliminated_brick_id FROM Player WHERE player_name = ?;');
         $stmt->execute(array($player_name));
         $result = $stmt->fetch(PDO::FETCH_OBJ);
@@ -291,7 +284,10 @@ class API
         if($latest_eliminated_brick_id == '0')
         {
             $this->exitCriticalSection($instance,$table_name,$runningInfo['ticket_num']);
-            if($ownership != null){
+            // IF THE THE BALL CHANGED OWNERSHIP
+            if($this->checkOwnerShipChange($player_name)){
+                $owner1 = $this->getOwnerOfBall(1);
+                $owner2 = $this->getOwnerOfBall(2);
                 return array('response' => 'bar_ownership_changed','bar_position_x' => $bar_position,'ball1' => $owner1,'ball2' => $owner2);
             }else{
                 return array('response' => 'bar','bar_position_x' => $bar_position);
@@ -303,8 +299,12 @@ class API
             $stmt = $this->pdo->prepare('UPDATE Player SET latest_eliminated_brick_id = ? WHERE player_name = ?;');
             $stmt->execute(array('null',$player_name));
             $this->exitCriticalSection($instance,$table_name,$runningInfo['ticket_num']);
-             if($ownership != null){
-                 return array('response' => 'more_ownership_changed','bar_position_x' => $bar_position, 'brick_id' => $latest_eliminated_brick_id,'ball1' => $owner1,'ball2' => $owner2);
+            
+            // IF THE THE BALL CHANGED OWNERSHIP
+            if($this->checkOwnerShipChange($player_name)){
+                $owner1 = $this->getOwnerOfBall(1);
+                $owner2 = $this->getOwnerOfBall(2);
+                return array('response' => 'more_ownership_changed','bar_position_x' => $bar_position, 'brick_id' => $latest_eliminated_brick_id,'ball1' => $owner1,'ball2' => $owner2);
              }else{
                  return array('response' => 'more','bar_position_x' => $bar_position, 'brick_id' => $latest_eliminated_brick_id);
              }
