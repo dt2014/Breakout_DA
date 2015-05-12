@@ -28,12 +28,12 @@ then provide all 8 paras above
 Second option
 
 - brick_id
-if you want to eliminate a brick provide this provide this para
+if you want to eliminate a brick provide this para
 
 Third option
 
 - ball_id
-if you want to get this ball's ownership provide this para
+if you want to change this ball's ownership provide this para
 
 
 The above parameters should is the write to server,
