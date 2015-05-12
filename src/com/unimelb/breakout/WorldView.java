@@ -38,12 +38,21 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
     private static final String TAG = WorldView.class.getName();
     
 	private SurfaceHolder surfaceHolder;
-	private volatile RuntimeData rData;
 	private volatile Paint paint;
 	private final Lock lock = new ReentrantLock();
+	private volatile RuntimeData rData;
+	private String myName;
+	private String rivalName;
+	private String mapSide;
+	private volatile Bricks bricks;
 	private volatile int gameViewWidth;
 	private volatile int gameViewHeight;
 	private MainActivity mainActivity;
+	private volatile Ball ball1;
+	private volatile Ball ball2;
+	private volatile Bar myBar;
+	private volatile Bar rivalBar;
+	private volatile int pendingBrickId;
 	private volatile SoundPool sp;
     private volatile int collideId;
 	
@@ -73,9 +82,11 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
         rData = mainActivity.getrData();
         rData.setGameViewWidth(gameViewWidth);
         rData.setGameViewHeight(gameViewHeight);
+        bricks = rData.getBricks();
+        myName = rData.getMyName();
+        rivalName = rData.getRivalName();
         sp = mainActivity.getSp();
         collideId = mainActivity.getCollideId();
-        
         this.surfaceHolder = surfaceHolder;
         paint = new Paint();
         paint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
@@ -130,15 +141,9 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
     }
 
 	public void run() {
-		int timeToUpdate = 10;
-		int counter = 0;
 		while(rData.isRunning()) {
 			try {
 			    drawGame();
-			    if (++counter == timeToUpdate) {
-			    	counter = 0;
-			    	update();
-			    }
 			    if (!rData.isRunning()) {
                     return;
                 } else {
@@ -154,15 +159,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 //    	Log.d(TAG, rData.getMyName() + " in drawGame");
 	    mainActivity.showRuntimeData();
         Canvas canvas = null;
-        Ball ball1 = rData.getBall1();
-        Ball ball2 = rData.getBall2();
-        Bar myBar = rData.getMyBar();
-        Bar rivalBar = rData.getRivalBar();
-        Bricks bricks = rData.getBricks();
-        String myName = rData.getMyName();
-        String rivalName = rData.getRivalName();
-//        OnPlayData onPlayData = new OnPlayData();
-       
+        
         synchronized(surfaceHolder) {
             try {
                 canvas = surfaceHolder.lockCanvas();
@@ -180,64 +177,70 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
                     surfaceHolder.unlockCanvasAndPost(canvas);
                 }
             }
-        }        
-	}
-    
-    private void update() {
-    	Ball ball1 = rData.getBall1();
-        Ball ball2 = rData.getBall2();
-        Bar myBar = rData.getMyBar();
-        Bar rivalBar = rData.getRivalBar();
-        Bricks bricks = rData.getBricks();
-        String myName = rData.getMyName();
-        String rivalName = rData.getRivalName();
-    	
+        }
+        
     	try {
-            lock.lock();
-//            myBar.updateSpeed();
-            writeMyBarPosition(myBar.getBarX(), myName);
-            ball1.moveBall();
+    		lock.lock();
+//          myBar.updateSpeed();
+    		ball1.moveBall();
             ball2.moveBall();
-            if (!ball1.getOnPlayInfo().gameIsOn() || !ball2.getOnPlayInfo().gameIsOn()) { //either ball hit the ground, game over
+            
+            //either ball hit the ground, game over
+            if (!ball1.getOnPlayInfo().gameIsOn() || !ball2.getOnPlayInfo().gameIsOn()) { 
             	rData.setRunning(false);
             	mainActivity.generateGameOverDialog();
             	Log.d(TAG, "ball hit the ground");
             }
+            //optional ownership parameter
+            String ownershipPara = "";
             if (ball1.getOnPlayInfo().isOwnershipChanged()) {
             	Log.d(TAG, "inform server to change ball 1 ownership to " + myName);
-            	writeChangedOwnership(ball1.getBallId(), rData.getMyName());
+            	ownershipPara = "&ball_id=1";
             }
             if (ball2.getOnPlayInfo().isOwnershipChanged()) {
             	Log.d(TAG, "inform server to change ball 2 ownership to " + myName);
-            	writeChangedOwnership(ball2.getBallId(), myName);
+            	ownershipPara = "&ball_id=2";
             }
-            
+            //compulsory url parameter
+            String myBarPara = "&bar_position_x=" + barXToServer(myBar.getBarX());
+            //optional ball1, ball2 and brick parameters
+            String ball1Para = "";
+            String ball2Para = "";
+            String brickPara = "";
             if (ball1.isOwned()) {
-            	writeBallPositionAndSpeed(ball1);
+            	ball1Para = "&ball1_position_x=" + ballXYToServer(ball1.getX()) + 
+            			"&ball1_position_y=" + ballXYToServer(ball1.getY()) +
+            			"&ball1_speed_x=" + ballSpeedToServer(ball1.getXSpeed()) + 
+            			"&ball1_speed_y=" + ballSpeedToServer(ball1.getYSpeed());
             	int brickToDisappear1 = bricks.checkCollision(ball1, gameViewWidth, gameViewHeight);
             	if (brickToDisappear1 != 0 ) {
+            		pendingBrickId = brickToDisappear1;
             		sp.play(collideId, 0.5f, 0.5f, 0, 0, 1);
-            		writeHitBrick(brickToDisappear1, myName);
-            		readScoresFromServer(myName, rivalName);
+            		brickPara = "&brick_id=" + brickToDisappear1;
             	}
             }
             
             if (ball2.isOwned()) {
-            	writeBallPositionAndSpeed(ball2);
+            	ball2Para = "&ball2_position_x=" + ballXYToServer(ball2.getX()) + 
+            			"&ball2_position_y=" + ballXYToServer(ball2.getY()) +
+            			"&ball2_speed_x=" + ballSpeedToServer(ball2.getXSpeed()) + 
+            			"&ball2_speed_y=" + ballSpeedToServer(ball2.getYSpeed());
             	int brickToDisappear2 = bricks.checkCollision(ball2, gameViewWidth, gameViewHeight);
             	if (brickToDisappear2 != 0 ) {
+            		pendingBrickId = brickToDisappear2;
             		sp.play(collideId, 0.5f, 0.5f, 0, 0, 1);
-            		writeHitBrick(brickToDisappear2, myName);
-            		readScoresFromServer(myName, rivalName);
+            		brickPara = "&brick_id=" + brickToDisappear2;
             	}
             }
             
-            readBallPositionAndSpeed(ball1);
-            rData.setBall1(ball1);
-            readBallPositionAndSpeed(ball2);
-            rData.setBall2(ball2);
-            
-            readRivalBarForMore(rivalBar);
+            String url = Constants.SEVER_URL + 
+            		"?command=play&player_name=" + myName + 
+            		myBarPara + 
+            		ball1Para + 
+            		ball2Para + 
+            		brickPara + 
+            		ownershipPara; 
+            readFromServer(url);
             
             if (bricks.isClear()) { //all bricks are gone
                 mainActivity.showRuntimeData();
@@ -245,17 +248,39 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
                 
                 //TODO: Inform winning or game over
 //                mainActivity.generateGameOverDialog();
-            }   
+            }  
         } finally {
-            lock.unlock();
+        	lock.unlock();
         }
+	}
+    
+    private float barXToServer(float myBarX) {
+    	float barX = myBarX;
+    	if (mapSide.equals("B")) { //convert to the position in A side in server
+    		barX = 1 - Constants.BAR_LENGTH_FACTOR - myBarX;
+    	}
+    	return barX;
     }
     
+    private float ballXYToServer(float ballXY) {
+    	float xy = ballXY;
+    	if (mapSide.equals("B")) { //convert to the position in A side in server
+    		xy = 1 - ballXY;
+    	}
+    	return xy;
+    }
+    
+    private float ballSpeedToServer(float ballSpeed) {
+    	float speed = ballSpeed;
+    	if (mapSide.equals("B")) { //convert to the position in A side in server
+    		speed = -ballSpeed;
+    	}
+    	return speed;
+    }
     
     /**************************** NETWORK CODE *******************************/   
     
-    private void readRivalBarForMore(final Bar rivalBar) {
-    	String url = Constants.SEVER_URL + "?command=read&player_name=" + rData.getRivalName();
+    private void readFromServer(String url) {
     	Log.d(TAG, url);
     	JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
     			new Response.Listener<JSONObject>() {
@@ -263,116 +288,85 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
     	    public void onResponse(JSONObject response) {
     	    	try {
     	    		Log.d(TAG, response.toString());
-    	    		String tag = response.getString("response");
-    	    		if (tag.equals("bar") || tag.equals("more")) {
+    	    		//save scores
+    	    		JSONObject scores = response.getJSONObject("about_score");
+    	    		if (mapSide.equals("A")) {
+    	    			rData.setMyScore(Integer.valueOf(scores.getString("player2Score")));
+        	    		rData.setRivalScore(Integer.valueOf(scores.getString("player1Score")));
+    	    		} else {
+    	    			rData.setMyScore(Integer.valueOf(scores.getString("player1Score")));
+        	    		rData.setRivalScore(Integer.valueOf(scores.getString("player2Score")));
+    	    		}
+    	    		
+    	    		//read bar info
+    	    		JSONObject barInfo = response.getJSONObject("about_bar");
+    	    		String tag = barInfo.getString("response");
+    	    		if (tag.equals("player_lost")) {
+    	    			//TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! inform interruption
+    	    			rData.setRunning(false);
+    	    		} else { // read rival bar position first then handle other information
     	    			float rivalBarX = Float.valueOf(response.getString("bar_position_x"));
-    	    			if (rData.getMapSide().equals("B")) {
+    	    			if (mapSide.equals("B")) {
     	    				rivalBarX = 1 - Constants.BAR_LENGTH_FACTOR - rivalBarX;
     	    			}
     	    			rivalBar.setBarX(rivalBarX);
-    	                rData.setRivalBar(rivalBar);
-    	    			if (tag.equals("more")) {
-    	    				int brickId = Integer.valueOf(response.getString("brick_id"));
-    	    				Bricks bricks = rData.getBricks();
+    	    			//handle brick gone
+    	    			if (tag.equals("more") || tag.equals("more_ownership_changed")) {
+    	    				int brickId = Integer.valueOf(barInfo.getString("brick_id"));
     	    				bricks.setAlive(brickId, false);
-    	    				rData.setBricks(bricks);
         	    		}
-    	    		} else if (tag.equals("player_lost")) {
-    	    			//TODO !!!! inform interruption
-    	    			rData.setRunning(false);
+    	    			//handle ball ownership change
+    	    			if (tag.equals("bar_ownership_changed") || tag.equals("more_ownership_changed")) {
+        	    			String ball1Owner = barInfo.getString("ball1");
+        	    			if (ball1Owner.equals(rivalName)) {
+        	    				ball1.setOwned(false);
+        	    			}
+        	    			String ball2Owner = barInfo.getString("ball2");
+        	    			if (ball2Owner.equals(rivalName)) {
+        	    				ball2.setOwned(false);
+        	    			}
+        	    		}
     	    		}
-    	        } catch (JSONException e) {
-    	        	Log.d(TAG, "Something Wrong read bar for more !!!");
-    	        }
-            }
-    	    }, new Response.ErrorListener() {
-    	    @Override
-    	    public void onErrorResponse(VolleyError error) {
-    	    	error.printStackTrace();
-    	    }
-    	});
-    	request.setTag(MainActivity.TAG);
-    	VolleySingleton.getInstance(mainActivity.getApplicationContext()).addToRequestQueue(request);
-    }
-    
-    private void writeMyBarPosition(float myBarX, String myName) {
-    	if (rData.getMapSide().equals("B")) { //convert to the position in A side in server
-    		myBarX = 1 - Constants.BAR_LENGTH_FACTOR - myBarX;
-    	}
-    	String url = Constants.SEVER_URL + "?command=write&player_name=" + myName + "&bar_position_x=" + myBarX;
-    	writeWithNoResponse(url);
-    }
-    
-    private void writeBallPositionAndSpeed(Ball ball) {
-    	float ballX = ball.getX();
-    	float ballY = ball.getY();
-    	float ballXSpeed = ball.getXSpeed();
-    	float ballYSpeed = ball.getYSpeed();
-    	if (rData.getMapSide().equals("B")) { //convert to the position in A side in server
-    		ballX = 1 - ballX;
-    		ballY = 1 - ballY;
-    		ballXSpeed = -ballXSpeed;
-    		ballYSpeed = -ballYSpeed;
-    	}
-    	String url = Constants.SEVER_URL + "?command=write&ball_id=" + ball.getBallId() +
-    		"&ball_position_x=" + ballX +
-    		"&ball_position_y=" + ballY +
-    		"&ball_speed_x=" + ballXSpeed +
-    		"&ball_speed_y=" + ballYSpeed;
-    	writeWithNoResponse(url);
-    }
-    
-    private void readBallPositionAndSpeed(final Ball ball) {
-    	String url = Constants.SEVER_URL + "?command=read&ball_id=" + ball.getBallId();
-    	Log.d(TAG, url);
-    	JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
-    			new Response.Listener<JSONObject>() {
-    	    @Override
-    	    public void onResponse(JSONObject response) {
-    	    	try {
-    	    		Log.d(TAG, response.toString());
-    	    		JSONObject position = response.getJSONObject("position");
-    	    		float ballX = Float.valueOf(position.getString("ball_position_x"));
-    	    		float ballY = Float.valueOf(position.getString("ball_position_y"));
-    	    		JSONObject speed = response.getJSONObject("speed");
-    	    		float ballXSpeed = Float.valueOf(speed.getString("ball_speed_x"));
-    	    		float ballYSpeed = Float.valueOf(speed.getString("ball_speed_y"));
-    	    		if (rData.getMapSide().equals("B")) { //convert to the position in B side locally
-    	        		ballX = 1 - ballX;
-    	        		ballY = 1 - ballY;
-    	        		ballXSpeed = -ballXSpeed;
-    	        		ballYSpeed = -ballYSpeed;
-    	        	}
-    	    		ball.setPositionAndSpeed(ballX, ballY, ballXSpeed, ballYSpeed);
-    	    		if (response.getString("owner_name").equals(rData.getRivalName())) {
-    	    			ball.setOwned(false);
+    	    		
+    	    		//check if brick elimination is ok
+    	    		if (response.has("about_eliminate")){
+    	    			if (response.getJSONObject("about_eliminate").getString("Info").equals("Brick Eliminate Success")) {
+    	    				bricks.setAlive(pendingBrickId, false);
+        	                Log.d(TAG, "brick no. " + pendingBrickId + " was eliminated by " + myName);
+    	    			}
     	    		}
+    	    		
+    	    		// finally read ball info
+    	    		if (response.has("about_ball")){
+    	    			JSONObject ballInfo = response.getJSONObject("about_ball");
+    	    			if (ballInfo.has("ball1")) {
+    	    				JSONObject ball1Info = ballInfo.getJSONObject("ball1");
+    	    				float ball1X = Float.valueOf(ball1Info.getString("ball_position_x"));
+    	    				float ball1Y = Float.valueOf(ball1Info.getString("ball_position_y"));
+    	    				float ball1XSpeed = Float.valueOf(ball1Info.getString("ball_speed_x"));
+    	    				float ball1YSpeed = Float.valueOf(ball1Info.getString("ball_speed_y"));
+    	    				if (mapSide.equals("A")) {
+    	    					ball1.setPositionAndSpeed(ball1X, ball1Y, ball1XSpeed, ball1YSpeed);
+    	    				} else {
+    	    					ball1.setPositionAndSpeed(1 - ball1X, 1 - ball1Y, -ball1XSpeed, -ball1YSpeed);
+    	    				}
+    	    			}
+    	    			if (ballInfo.has("ball2")) {
+    	    				JSONObject ball2Info = ballInfo.getJSONObject("ball2");
+    	    				float ball2X = Float.valueOf(ball2Info.getString("ball_position_x"));
+    	    				float ball2Y = Float.valueOf(ball2Info.getString("ball_position_y"));
+    	    				float ball2XSpeed = Float.valueOf(ball2Info.getString("ball_speed_x"));
+    	    				float ball2YSpeed = Float.valueOf(ball2Info.getString("ball_speed_y"));
+    	    				if (mapSide.equals("A")) {
+    	    					ball1.setPositionAndSpeed(ball2X, ball2Y, ball2XSpeed, ball2YSpeed);
+    	    				} else {
+    	    					ball1.setPositionAndSpeed(1 - ball2X, 1 - ball2Y, -ball2XSpeed, -ball2YSpeed);
+    	    				}
+    	    			}
+    	    		}
+    	    		
     	        } catch (JSONException e) {
-    	        	Log.d(TAG, "Something Wrong read ball " + ball.getBallId() + " details from server response");
-    	        }
-            }
-    	    }, new Response.ErrorListener() {
-    	    @Override
-    	    public void onErrorResponse(VolleyError error) {
-    	    	error.printStackTrace();
-    	    }
-    	});
-    	request.setTag(MainActivity.TAG);
-    	VolleySingleton.getInstance(mainActivity.getApplicationContext()).addToRequestQueue(request);
-    }
-    
-    private void readScoresFromServer(String myName, String vivalName){
-    	String url = Constants.SEVER_URL + "?command=read&player1_name=" + myName + "&player2_name=" + vivalName;
-    	JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
-    			new Response.Listener<JSONObject>() {
-    	    @Override
-    	    public void onResponse(JSONObject response) {
-    	    	try {
-    	    		Log.d(TAG, response.toString());
-    	    		rData.setMyScore(Integer.valueOf(response.getString("player1Score")));
-    	    		rData.setRivalScore(Integer.valueOf(response.getString("player2Score")));
-    	        } catch (JSONException e) {
-    	        	Log.d(TAG, "Something Wrong read scores from server response" + response.toString());
+    	        	Log.d(TAG, "Something Wrong!!!");
     	        }
             }
     	    }, new Response.ErrorListener() {
@@ -385,100 +379,49 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
     	VolleySingleton.getInstance(mainActivity.getApplicationContext()).addToRequestQueue(request);
     }
 
-    private void writeHitBrick(final int brickId, final String myName) {
-    	String url = Constants.SEVER_URL + "?command=write&player_name=" + myName + "&brick_id=" + brickId;
-    	JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
-    			new Response.Listener<JSONObject>() {
-    	    @Override
-    	    public void onResponse(JSONObject response) {
-    	    	try {
-    	    		Log.d(TAG, response.toString());
-    	            if (response.getString("Info").equals("Brick Eliminate Success")) {
-	    				Bricks bricks = rData.getBricks();
-	    				bricks.setAlive(brickId, false);
-	    				rData.setBricks(bricks);
-    	                Log.d(TAG, "brick no. " + brickId + " was eliminated by " + myName);
-    	            }
-    	        } catch (JSONException e) {
-    	        	Log.d(TAG, "Something Wrong write hit brick response" + response.toString());
-    	        }
-            }
-    	    }, new Response.ErrorListener() {
-    	    @Override
-    	    public void onErrorResponse(VolleyError error) {
-    	    	error.printStackTrace();
-    	    }
-    	});
-    	request.setTag(MainActivity.TAG);
-    	VolleySingleton.getInstance(mainActivity.getApplicationContext()).addToRequestQueue(request);
-    }
-    
-    private void writeChangedOwnership(int ballId, String myName) {
-    	String url = Constants.SEVER_URL + "?command=write&owner_name=" + myName + "&ball_id=" + ballId;
-    	writeWithNoResponse(url);
-    }
-    
-    private void writeWithNoResponse(String url) {
-    	Log.d(TAG, url);
-    	StringRequest request = new StringRequest(Request.Method.GET, url,
-    			new Response.Listener<String>() {
-    	    @Override
-    	    public void onResponse(String response) {
-    	    }
-    	}, new Response.ErrorListener() {
-    	    @Override
-    	    public void onErrorResponse(VolleyError error) {
-    	    	error.printStackTrace();
-    	    }
-    	});
-    	request.setTag(MainActivity.TAG);
-    	VolleySingleton.getInstance(mainActivity.getApplicationContext()).addToRequestQueue(request);
-    }
-    
     /**************************** NETWORK CODE *******************************/
     
 
     private void initBallAndBar() {
-    	Bar myBar = new Bar(Constants.BAR_INIT_X_FACTOR, Constants.BAR_INIT_Y_FACTOR);
-        Bar rivalBar = new Bar(Constants.BAR_INIT_X_FACTOR, Constants.OPPOSITE_BAR_Y_FACTOR);
-    	rData.setMyBar(myBar);
-        rData.setRivalBar(rivalBar);
+    	myBar = new Bar(Constants.BAR_INIT_X_FACTOR, Constants.BAR_INIT_Y_FACTOR);
+        rivalBar = new Bar(Constants.BAR_INIT_X_FACTOR, Constants.OPPOSITE_BAR_Y_FACTOR);
+//    	rData.setMyBar(myBar);
+//        rData.setRivalBar(rivalBar);
         
-        if (rData.getMapSide().equals("A")) { //I own ball1
-        	Ball ball1 = new Ball(1, 
+        if (mapSide.equals("A")) { //I own ball1
+        	ball1 = new Ball(1, 
             		Constants.BALL_INIT_X_FACTOR,
             		Constants.BALL_INIT_Y_FACTOR, 
             		Constants.BALL_INIT_XSPEED_FACTOR,
             		Constants.BALL_INIT_YSPEED_FACTOR,
             		myBar, true);
-            rData.setBall1(ball1);
+//            rData.setBall1(ball1);
             
-            Ball ball2 = new Ball(2,
+            ball2 = new Ball(2,
             		Constants.BALL_INIT_X_FACTOR,
             		1 - Constants.BALL_INIT_Y_FACTOR,
             		- Constants.BALL_INIT_XSPEED_FACTOR,
             		- Constants.BALL_INIT_YSPEED_FACTOR,
             		myBar, false);
-            rData.setBall2(ball2);
+//            rData.setBall2(ball2);
         } else { // I own ball2
-        	Ball ball1 = new Ball(1,
+        	ball1 = new Ball(1,
             		Constants.BALL_INIT_X_FACTOR,
             		1 - Constants.BALL_INIT_Y_FACTOR,
             		- Constants.BALL_INIT_XSPEED_FACTOR,
             		- Constants.BALL_INIT_YSPEED_FACTOR,
             		myBar, false);
-            rData.setBall1(ball1);
+//            rData.setBall1(ball1);
             
-            Ball ball2 = new Ball(2, 
+            ball2 = new Ball(2, 
             		Constants.BALL_INIT_X_FACTOR,
             		Constants.BALL_INIT_Y_FACTOR, 
             		Constants.BALL_INIT_XSPEED_FACTOR,
             		Constants.BALL_INIT_YSPEED_FACTOR,
             		myBar, true);
-            rData.setBall2(ball2);
+//            rData.setBall2(ball2);
         }        
         Log.d(TAG, "initBallAndBar");
         Log.d(TAG, "Phone:" + rData.getMyName() + "; mapSide: " + rData.getMapSide());
     }
-
 }
