@@ -1,0 +1,85 @@
+command start and stop remain the same as previous
+
+replace command write and read with only one commnad named "play"
+
+in command play following parameters should be provided by user
+
+- player_name
+- bar_position_x
+
+the following parameters are optional:
+
+First option
+
+- ball1_position_x
+- ball1_position_y
+- ball1_speed_x
+- ball1_speed_y
+
+- ball2_position_x
+- ball2_position_y
+- ball2_speed_x
+- ball2_speed_y
+
+based on how many ball you own you should update the ball information e.g. if you have no ball
+then these paras is not needed, if you have one ball provide any 4 of the above paras, if you have 2 balls
+then provide all 8 paras above
+
+Second option
+
+- brick_id
+if you want to eliminate a brick provide this provide this para
+
+Third option
+
+- ball_id
+if you want to get this ball's ownership provide this para
+
+
+The above parameters should is the write to server,
+in response, server will return data base on your request
+
+The following will be return everytime regardless of parameter
+
+-  "about_score":{"player1Score":"0","player2Score":"100"}
+
+-  "about_bar":{"response":"bar","bar_position_x":"0.300"}   This is the same as the old response which means
+it can also be {"response":"more" .......} , {"response":"bar_ownership_change" .....} etc.
+different with the old one is adding the key "about_bar"
+
+The following will be optional returned
+
+if you try to eliminate a brick will return
+-  "about_eliminate":{"Info":"Brick Eliminate Not Success"}
+or "about_eliminate":{"Info":"Brick Eliminate Success"}
+
+depends on how many ball you have
+if you have no ball you will get the pos of two ball, like
+
+"about_ball":{"ball1":{"ball_position_x":"0.333","ball_position_y":"0.333"},"ball2":{"ball_position_x":"0.500","ball_position_y":"0.400"}}
+
+
+if you have one ball, you will get the pos of the unknown ball,like
+
+(if you have ball 1 then you will get)
+"about_ball":{"ball2":{"ball_position_x":"0.500","ball_position_y":"0.400"}}
+
+(or if you have ball 2 then you will get)
+"about_ball":{"ball1":{"ball_position_x":"0.500","ball_position_y":"0.400"}}
+
+
+if you have all the ball, you would not get this filed at all not even the key
+
+
+
+
+
+
+
+
+
+
+
+
+
+
