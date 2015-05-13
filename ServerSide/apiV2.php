@@ -91,8 +91,8 @@ try
         // RETURN THE BAR OF RIVAL PLAYER
         if(isset($_GET["player_name"]))
         {
-            $player_name = $_GET["player_name"];
-            $bar_position = $api->getBarPosition($player_name);
+            $rival_name = $api->getOpponentName($_GET["player_name"]);
+            $bar_position = $api->getBarPosition($rival_name);
             $reply['about_bar'] = $bar_position;
         }
         
@@ -251,12 +251,14 @@ class API
         $table_name = "Ball";
         $runningInfo = $this->startLampartAlgorithm($operation,$table_name,$instance);
     
-        $stmt = $this->pdo->prepare('SELECT ball_position_x, ball_position_y FROM Ball WHERE ball_id = ?;');
+        $stmt = $this->pdo->prepare('SELECT ball_position_x, ball_position_y, ball_speed_x,ball_speed_y FROM Ball WHERE ball_id = ?;');
         $stmt->execute(array($ball_id));
         $ball_detail = $stmt->fetch(PDO::FETCH_OBJ);
         
         $ball_position =array('ball_position_x' => $ball_detail->ball_position_x,
                               'ball_position_y' => $ball_detail->ball_position_y,
+                              'ball_speed_x' => $ball_detail->ball_speed_x,
+                              'ball_speed_y' => $ball_detail->ball_speed_y
                               );
         $this->exitCriticalSection($instance,$table_name,$runningInfo['ticket_num']);
         return $ball_position;
