@@ -54,7 +54,7 @@ public class InitGameAtServerTask extends AsyncTask<RuntimeData, String, Boolean
 		BufferedReader in = null;
 		try {
 			publishProgress("Connecting server...");
-			String url = Constants.SEVER_URL + "?command=start&player_name=" + rData.getMyName();
+			String url = Constants.SEVER_URL + "?command=start&n=" + rData.getMyName();
 			URL serverURL = new URL(url);
 			URLConnection urlConnection = serverURL.openConnection();
 			urlConnection.setConnectTimeout(Constants.NETWORK_TIMEOUT);

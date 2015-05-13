@@ -15,7 +15,7 @@ public class Constants {
 	 * 
 	 */
 //	public static String SEVER_URL = "http://letsbreakout.comxa.com/api.php";
-	public static String SEVER_URL = "http://192.168.0.4/apiV2.php";
+	public static String SEVER_URL = "http://192.168.0.4/apiV4.php";
 	
 	/**
 	 * Timing in milliseconds
@@ -25,7 +25,7 @@ public class Constants {
 	public static final int TRANSFER_TIMEOUT = 6000;
 	public static final int GAME_COUNTDOWN = 5000;
 	public static final int COUNTDOWN_INTERVAL = 1000;
-	public static final int GAME_THREAD_SLEEP = 20;
+	public static final int GAME_THREAD_SLEEP = 60;
 	
 	/**
 	 * Counts for game-thread-sleep rounds for sending network requests to update game dynamics

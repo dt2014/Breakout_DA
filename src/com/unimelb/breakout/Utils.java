@@ -14,6 +14,7 @@ package com.unimelb.breakout;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -63,7 +64,7 @@ public final class Utils {
                 nameInitials.append(name.charAt(i + 1) + ".");
             }
         }
-        return nameInitials.toString().toUpperCase();
+        return nameInitials.toString().toUpperCase(Locale.ENGLISH);
     }
     
     public static void showError(final Context context, final int errMsg) {
@@ -86,8 +87,8 @@ public final class Utils {
         });
     }
     
-    public static void deActivateFromServer(Context context, String name) {
-    	String url = Constants.SEVER_URL + "?command=stop&player_name=" + name;
+    public static void deActivateFromServer(Context context, String command, String name) {
+    	String url = Constants.SEVER_URL + "?command=" + command + "&n=" + name;
     	Log.d("deActivateFromServer", url);
     	StringRequest stopGameRequest = new StringRequest(Request.Method.GET, url,
     			new Response.Listener<String>() {

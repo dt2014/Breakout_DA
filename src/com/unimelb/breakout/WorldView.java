@@ -12,16 +12,13 @@ package com.unimelb.breakout;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -55,6 +52,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 	private volatile int pendingBrickId;
 	private volatile SoundPool sp;
     private volatile int collideId;
+    private volatile boolean deActivatedFromServer = false;
 	
 	public WorldView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -77,14 +75,16 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 	@Override
 	public void surfaceCreated(SurfaceHolder surfaceHolder) {
 	    mainActivity = (MainActivity) getContext();
-	    gameViewWidth = getWidth();
-	    gameViewHeight = getHeight();
-        rData = mainActivity.getrData();
-        rData.setGameViewWidth(gameViewWidth);
-        rData.setGameViewHeight(gameViewHeight);
-        bricks = rData.getBricks();
+	    rData = mainActivity.getrData();
+	    bricks = rData.getBricks();
         myName = rData.getMyName();
         rivalName = rData.getRivalName();
+        mapSide = rData.getMapSide();
+	    gameViewWidth = getWidth();
+	    gameViewHeight = getHeight();
+        rData.setGameViewWidth(gameViewWidth);
+        rData.setGameViewHeight(gameViewHeight);
+        
         sp = mainActivity.getSp();
         collideId = mainActivity.getCollideId();
         this.surfaceHolder = surfaceHolder;
@@ -104,19 +104,20 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 	@Override
 	public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
 	    rData.setRunning(false);
-	    Utils.deActivateFromServer(mainActivity, rData.getMyName());
+	    if (!deActivatedFromServer) {
+		    Utils.deActivateFromServer(mainActivity, "stop", myName);
+	    }
         Log.d(TAG, "surface destroyed!");
 	}
 	
+	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-	    Bar myBar = rData.getMyBar();
 	    if (rData.isRunning()) {
 	        if(event.getAction() == MotionEvent.ACTION_DOWN) {
 	            myBar.setOldTouchX(event.getRawX() / gameViewWidth);
 	            myBar.setPrevT(System.currentTimeMillis());
 	            rData.setMyBar(myBar);
-//	            Log.d(TAG, rData.getMyName() + " in bar action down");
 	        }
 	        if(event.getAction() == MotionEvent.ACTION_MOVE) {
 	            float curX = event.getRawX() / gameViewWidth;
@@ -128,8 +129,6 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
                             myBar.move(dx, dt);
                             myBar.setOldTouchX(curX);
                             rData.setMyBar(myBar);
-//                            Log.d(TAG, rData.getMyName() + " in bar action move");
-//                            rData.setMyBarXSpeed(myBar.getBarXSpeed());
                         } finally {
                             lock.unlock();
                         }
@@ -188,53 +187,56 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
             //either ball hit the ground, game over
             if (!ball1.getOnPlayInfo().gameIsOn() || !ball2.getOnPlayInfo().gameIsOn()) { 
             	rData.setRunning(false);
-            	mainActivity.generateGameOverDialog();
+            	Utils.deActivateFromServer(mainActivity, "lose", myName);
+            	deActivatedFromServer = true;
+            	mainActivity.generateGameOverDialog("Please try again :)");
             	Log.d(TAG, "ball hit the ground");
             }
-            //optional ownership parameter
+            //optional ownership parameter "b" means "ball_id"
             String ownershipPara = "";
             if (ball1.getOnPlayInfo().isOwnershipChanged()) {
-            	Log.d(TAG, "inform server to change ball 1 ownership to " + myName);
-            	ownershipPara = "&ball_id=1";
+//            	Log.d(TAG, "inform server to change ball 1 ownership to " + myName);
+            	ownershipPara = "&b=1";
             }
             if (ball2.getOnPlayInfo().isOwnershipChanged()) {
-            	Log.d(TAG, "inform server to change ball 2 ownership to " + myName);
-            	ownershipPara = "&ball_id=2";
+//            	Log.d(TAG, "inform server to change ball 2 ownership to " + myName);
+            	ownershipPara = "&b=2";
             }
-            //compulsory url parameter
-            String myBarPara = "&bar_position_x=" + barXToServer(myBar.getBarX());
+            //compulsory url parameter "x" means "bar_position_x="
+            String myBarPara = "&x=" + barXToServer(myBar.getBarX());
             //optional ball1, ball2 and brick parameters
+            //"x" is ballX, "y" is ballY, "w" is ballXSpeed, "z" is ballYSpeed, "k" is brickId
             String ball1Para = "";
             String ball2Para = "";
             String brickPara = "";
             if (ball1.isOwned()) {
-            	ball1Para = "&ball1_position_x=" + ballXYToServer(ball1.getX()) + 
-            			"&ball1_position_y=" + ballXYToServer(ball1.getY()) +
-            			"&ball1_speed_x=" + ballSpeedToServer(ball1.getXSpeed()) + 
-            			"&ball1_speed_y=" + ballSpeedToServer(ball1.getYSpeed());
+            	ball1Para = "&x1=" + ballXYToServer(ball1.getX()) + 
+            			"&y1=" + ballXYToServer(ball1.getY()) +
+            			"&w1=" + ballSpeedToServer(ball1.getXSpeed()) + 
+            			"&z1=" + ballSpeedToServer(ball1.getYSpeed());
             	int brickToDisappear1 = bricks.checkCollision(ball1, gameViewWidth, gameViewHeight);
             	if (brickToDisappear1 != 0 ) {
             		pendingBrickId = brickToDisappear1;
             		sp.play(collideId, 0.5f, 0.5f, 0, 0, 1);
-            		brickPara = "&brick_id=" + brickToDisappear1;
+            		brickPara = "&k=" + brickToDisappear1;
             	}
             }
             
             if (ball2.isOwned()) {
-            	ball2Para = "&ball2_position_x=" + ballXYToServer(ball2.getX()) + 
-            			"&ball2_position_y=" + ballXYToServer(ball2.getY()) +
-            			"&ball2_speed_x=" + ballSpeedToServer(ball2.getXSpeed()) + 
-            			"&ball2_speed_y=" + ballSpeedToServer(ball2.getYSpeed());
+            	ball2Para = "&x2=" + ballXYToServer(ball2.getX()) + 
+            			"&y2=" + ballXYToServer(ball2.getY()) +
+            			"&w2=" + ballSpeedToServer(ball2.getXSpeed()) + 
+            			"&z2=" + ballSpeedToServer(ball2.getYSpeed());
             	int brickToDisappear2 = bricks.checkCollision(ball2, gameViewWidth, gameViewHeight);
             	if (brickToDisappear2 != 0 ) {
             		pendingBrickId = brickToDisappear2;
             		sp.play(collideId, 0.5f, 0.5f, 0, 0, 1);
-            		brickPara = "&brick_id=" + brickToDisappear2;
+            		brickPara = "&k=" + brickToDisappear2;
             	}
             }
             
             String url = Constants.SEVER_URL + 
-            		"?command=play&player_name=" + myName + 
+            		"?command=play&n=" + myName + 
             		myBarPara + 
             		ball1Para + 
             		ball2Para + 
@@ -245,9 +247,15 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
             if (bricks.isClear()) { //all bricks are gone
                 mainActivity.showRuntimeData();
                 rData.setRunning(false);
-                
-                //TODO: Inform winning or game over
-//                mainActivity.generateGameOverDialog();
+                int myScore = rData.getMyScore();
+                int rivalScore = rData.getRivalScore();
+                if (myScore == rivalScore) {
+                	mainActivity.generateGameOverDialog("You draw :)");
+                } else if (myScore > rivalScore) {
+                	mainActivity.generateGameOverDialog("Congratulations! You win!");
+                } else {
+                	mainActivity.generateGameOverDialog("You lost :( Try again!");
+                }
             }  
         } finally {
         	lock.unlock();
@@ -289,39 +297,42 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
     	    	try {
     	    		Log.d(TAG, response.toString());
     	    		//save scores
-    	    		JSONObject scores = response.getJSONObject("about_score");
+    	    		JSONObject scores = response.getJSONObject("s");
     	    		if (mapSide.equals("A")) {
-    	    			rData.setMyScore(Integer.valueOf(scores.getString("player2Score")));
-        	    		rData.setRivalScore(Integer.valueOf(scores.getString("player1Score")));
+    	    			rData.setMyScore(Integer.valueOf(scores.getString("A")));
+        	    		rData.setRivalScore(Integer.valueOf(scores.getString("B")));
     	    		} else {
-    	    			rData.setMyScore(Integer.valueOf(scores.getString("player1Score")));
-        	    		rData.setRivalScore(Integer.valueOf(scores.getString("player2Score")));
+    	    			rData.setMyScore(Integer.valueOf(scores.getString("B")));
+        	    		rData.setRivalScore(Integer.valueOf(scores.getString("A")));
     	    		}
     	    		
     	    		//read bar info
-    	    		JSONObject barInfo = response.getJSONObject("about_bar");
-    	    		String tag = barInfo.getString("response");
-    	    		if (tag.equals("player_lost")) {
-    	    			//TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! inform interruption
+    	    		JSONObject barInfo = response.getJSONObject("b"); // "b" is bar
+    	    		String tag = barInfo.getString("r"); //"r" is response
+    	    		if (tag.equals("l")) { //"l" is player lost
     	    			rData.setRunning(false);
+    	    			mainActivity.generateGameOverDialog("Your rival is away. Try again later.");
+    	    		} else if (tag.equals("w")) {
+    	    			mainActivity.generateGameOverDialog("You win! Congratulations!");
     	    		} else { // read rival bar position first then handle other information
-    	    			float rivalBarX = Float.valueOf(response.getString("bar_position_x"));
+    	    			float rivalBarX = Float.valueOf(barInfo.getString("x")); //"x" is barX
     	    			if (mapSide.equals("B")) {
     	    				rivalBarX = 1 - Constants.BAR_LENGTH_FACTOR - rivalBarX;
     	    			}
     	    			rivalBar.setBarX(rivalBarX);
     	    			//handle brick gone
-    	    			if (tag.equals("more") || tag.equals("more_ownership_changed")) {
-    	    				int brickId = Integer.valueOf(barInfo.getString("brick_id"));
+    	    			if (tag.equals("m") || tag.equals("k")) { //"m" - one brick gone; "k" - one brick gone & ball ownership changed
+    	    				int brickId = Integer.valueOf(barInfo.getString("k")); //here "k" is for brickId
     	    				bricks.setAlive(brickId, false);
+//    	    				Log.d(TAG, "more???");
         	    		}
     	    			//handle ball ownership change
-    	    			if (tag.equals("bar_ownership_changed") || tag.equals("more_ownership_changed")) {
-        	    			String ball1Owner = barInfo.getString("ball1");
+    	    			if (tag.equals("o") || tag.equals("k")) {
+        	    			String ball1Owner = barInfo.getString("1");//"1" means ball1
         	    			if (ball1Owner.equals(rivalName)) {
         	    				ball1.setOwned(false);
         	    			}
-        	    			String ball2Owner = barInfo.getString("ball2");
+        	    			String ball2Owner = barInfo.getString("2");//"2" means ball2
         	    			if (ball2Owner.equals(rivalName)) {
         	    				ball2.setOwned(false);
         	    			}
@@ -329,42 +340,41 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
     	    		}
     	    		
     	    		//check if brick elimination is ok
-    	    		if (response.has("about_eliminate")){
-    	    			if (response.getJSONObject("about_eliminate").getString("Info").equals("Brick Eliminate Success")) {
+    	    		if (response.has("e")){//"e" is "eliminate"
+    	    			if (response.getString("e").equals("y")) {
     	    				bricks.setAlive(pendingBrickId, false);
-        	                Log.d(TAG, "brick no. " + pendingBrickId + " was eliminated by " + myName);
+//        	                Log.d(TAG, "brick no. " + pendingBrickId + " was eliminated by " + myName);
     	    			}
     	    		}
     	    		
     	    		// finally read ball info
-    	    		if (response.has("about_ball")){
-    	    			JSONObject ballInfo = response.getJSONObject("about_ball");
-    	    			if (ballInfo.has("ball1")) {
-    	    				JSONObject ball1Info = ballInfo.getJSONObject("ball1");
-    	    				float ball1X = Float.valueOf(ball1Info.getString("ball_position_x"));
-    	    				float ball1Y = Float.valueOf(ball1Info.getString("ball_position_y"));
-    	    				float ball1XSpeed = Float.valueOf(ball1Info.getString("ball_speed_x"));
-    	    				float ball1YSpeed = Float.valueOf(ball1Info.getString("ball_speed_y"));
+    	    		if (response.has("l")){ //"l" is for ball
+    	    			JSONObject ballInfo = response.getJSONObject("l");
+    	    			if (ballInfo.has("1")) { //"1" is for ball1
+    	    				JSONObject ball1Info = ballInfo.getJSONObject("1");
+    	    				float ball1X = Float.valueOf(ball1Info.getString("x"));
+    	    				float ball1Y = Float.valueOf(ball1Info.getString("y"));
+    	    				float ball1XSpeed = Float.valueOf(ball1Info.getString("w"));
+    	    				float ball1YSpeed = Float.valueOf(ball1Info.getString("z"));
     	    				if (mapSide.equals("A")) {
     	    					ball1.setPositionAndSpeed(ball1X, ball1Y, ball1XSpeed, ball1YSpeed);
     	    				} else {
     	    					ball1.setPositionAndSpeed(1 - ball1X, 1 - ball1Y, -ball1XSpeed, -ball1YSpeed);
     	    				}
     	    			}
-    	    			if (ballInfo.has("ball2")) {
-    	    				JSONObject ball2Info = ballInfo.getJSONObject("ball2");
-    	    				float ball2X = Float.valueOf(ball2Info.getString("ball_position_x"));
-    	    				float ball2Y = Float.valueOf(ball2Info.getString("ball_position_y"));
-    	    				float ball2XSpeed = Float.valueOf(ball2Info.getString("ball_speed_x"));
-    	    				float ball2YSpeed = Float.valueOf(ball2Info.getString("ball_speed_y"));
+    	    			if (ballInfo.has("2")) {//"2" is for ball2
+    	    				JSONObject ball2Info = ballInfo.getJSONObject("2");
+    	    				float ball2X = Float.valueOf(ball2Info.getString("x"));
+    	    				float ball2Y = Float.valueOf(ball2Info.getString("y"));
+    	    				float ball2XSpeed = Float.valueOf(ball2Info.getString("w"));
+    	    				float ball2YSpeed = Float.valueOf(ball2Info.getString("z"));
     	    				if (mapSide.equals("A")) {
-    	    					ball1.setPositionAndSpeed(ball2X, ball2Y, ball2XSpeed, ball2YSpeed);
+    	    					ball2.setPositionAndSpeed(ball2X, ball2Y, ball2XSpeed, ball2YSpeed);
     	    				} else {
-    	    					ball1.setPositionAndSpeed(1 - ball2X, 1 - ball2Y, -ball2XSpeed, -ball2YSpeed);
+    	    					ball2.setPositionAndSpeed(1 - ball2X, 1 - ball2Y, -ball2XSpeed, -ball2YSpeed);
     	    				}
     	    			}
     	    		}
-    	    		
     	        } catch (JSONException e) {
     	        	Log.d(TAG, "Something Wrong!!!");
     	        }
@@ -385,8 +395,6 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
     private void initBallAndBar() {
     	myBar = new Bar(Constants.BAR_INIT_X_FACTOR, Constants.BAR_INIT_Y_FACTOR);
         rivalBar = new Bar(Constants.BAR_INIT_X_FACTOR, Constants.OPPOSITE_BAR_Y_FACTOR);
-//    	rData.setMyBar(myBar);
-//        rData.setRivalBar(rivalBar);
         
         if (mapSide.equals("A")) { //I own ball1
         	ball1 = new Ball(1, 
@@ -395,7 +403,6 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
             		Constants.BALL_INIT_XSPEED_FACTOR,
             		Constants.BALL_INIT_YSPEED_FACTOR,
             		myBar, true);
-//            rData.setBall1(ball1);
             
             ball2 = new Ball(2,
             		Constants.BALL_INIT_X_FACTOR,
@@ -403,7 +410,6 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
             		- Constants.BALL_INIT_XSPEED_FACTOR,
             		- Constants.BALL_INIT_YSPEED_FACTOR,
             		myBar, false);
-//            rData.setBall2(ball2);
         } else { // I own ball2
         	ball1 = new Ball(1,
             		Constants.BALL_INIT_X_FACTOR,
@@ -411,7 +417,6 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
             		- Constants.BALL_INIT_XSPEED_FACTOR,
             		- Constants.BALL_INIT_YSPEED_FACTOR,
             		myBar, false);
-//            rData.setBall1(ball1);
             
             ball2 = new Ball(2, 
             		Constants.BALL_INIT_X_FACTOR,
@@ -419,7 +424,6 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
             		Constants.BALL_INIT_XSPEED_FACTOR,
             		Constants.BALL_INIT_YSPEED_FACTOR,
             		myBar, true);
-//            rData.setBall2(ball2);
         }        
         Log.d(TAG, "initBallAndBar");
         Log.d(TAG, "Phone:" + rData.getMyName() + "; mapSide: " + rData.getMapSide());

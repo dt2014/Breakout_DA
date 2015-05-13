@@ -141,7 +141,7 @@ public class MainActivity extends Activity {
          }.start();
     }
     
-    public void generateGameOverDialog() {
+    public void generateGameOverDialog(final String message) {
         // create alert dialog
         //AlertDialog alertDialog = dgb.create();
         this.runOnUiThread(new Runnable() {   // Use the context here
@@ -150,7 +150,7 @@ public class MainActivity extends Activity {
                 // set title
                 dialog.setTitle("Game Over");
                 // set dialog message
-                dialog.setMessage("Please try again :)");
+                dialog.setMessage(message);
                 dialog.setCancelable(false);
                 dialog.setNeutralButton("OK",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
