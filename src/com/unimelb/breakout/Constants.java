@@ -14,8 +14,8 @@ public class Constants {
 	/**
 	 * 
 	 */
-//	public static String SEVER_URL = "http://letsbreakout.comxa.com/api.php";
-	public static String SEVER_URL = "http://192.168.0.4/apiV4.php";
+	public static String SEVER_URL = "http://letsbreakout.comxa.com/apiV4.php";
+//	public static String SEVER_URL = "http://192.168.0.4/apiV4.php";
 	
 	/**
 	 * Timing in milliseconds

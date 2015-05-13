@@ -313,6 +313,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
     	    			rData.setRunning(false);
     	    			mainActivity.generateGameOverDialog("Your rival is away. Try again later.");
     	    		} else if (tag.equals("w")) {
+    	    			rData.setRunning(false);
     	    			mainActivity.generateGameOverDialog("You win! Congratulations!");
     	    		} else { // read rival bar position first then handle other information
     	    			float rivalBarX = Float.valueOf(barInfo.getString("x")); //"x" is barX

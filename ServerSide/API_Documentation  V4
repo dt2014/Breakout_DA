@@ -43,11 +43,12 @@ The following will be return everytime regardless of parameter
 
 -  "s" {"A":0,"B":100} #("about_score":{"player1Score":"0","player2Score":"100"}) ##PS: try to send integer instead of string
 
--  "r":{"resp":"b","x":0.300} or
-"r":{"resp":"m","x":0.300,"k":1} or
-"r":{"resp":"o","x":0.300,"1":"apple","2":"orange"} or
-"r":{"resp":"k","x":0.300,"k":1,"1":"apple","2":"orange"} or
-"r":{"resp":"l"} #equivalent to player_lost
+-  "b":{"r":"b","x":0.300} or
+"b":{"r":"m","x":0.300,"k":1} or
+"b":{"r":"o","x":0.300,"1":"apple","2":"orange"} or
+"b":{"r":"k","x":0.300,"k":1,"1":"apple","2":"orange"} or
+"b":{"r":"l"} #equivalent to player_lost or 
+"b":{"r":"w"} #rival lose
 #("about_bar":{"response":"bar","bar_position_x":"0.300"})  This is the same as the old response which means
 it can also be {"response":"more" .......} , {"response":"bar_ownership_change" .....} etc.
 different with the old one is adding the key "about_bar"
@@ -55,7 +56,7 @@ different with the old one is adding the key "about_bar"
 The following will be optional returned
 
 if you try to eliminate a brick will return
-{"elmn":"y"} or {"elmn":"n"}
+{"e":"y"} or {"e":"n"}
 #(-"about_eliminate":{"Info":"Brick Eliminate Not Success"} or "about_eliminate":{"Info":"Brick Eliminate Success"})
 
 depends on how many ball you have
@@ -75,17 +76,5 @@ if you have one ball, you will get the pos of the unknown ball,like
 
 
 if you have all the ball, you would not get this filed at all not even the key
-
-
-
-
-
-
-
-
-
-
-
-
 
 
