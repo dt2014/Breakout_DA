@@ -156,28 +156,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
 
     private void drawGame() {
 //    	Log.d(TAG, rData.getMyName() + " in drawGame");
-	    mainActivity.showRuntimeData();
-        Canvas canvas = null;
-        
-        synchronized(surfaceHolder) {
-            try {
-                canvas = surfaceHolder.lockCanvas();
-                if (canvas != null) {
-                    paint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
-                    canvas.drawPaint(paint);
-                    bricks.onDraw(canvas, gameViewWidth, gameViewHeight);
-                    myBar.onDraw(canvas, gameViewWidth, gameViewHeight);
-                    rivalBar.onDraw(canvas, gameViewWidth, gameViewHeight);
-                    ball1.onDraw(canvas, gameViewWidth, gameViewHeight);
-                    ball2.onDraw(canvas, gameViewWidth, gameViewHeight);
-                }
-            } finally {
-                if (canvas != null) {
-                    surfaceHolder.unlockCanvasAndPost(canvas);
-                }
-            }
-        }
-        
+	    
     	try {
     		lock.lock();
 //          myBar.updateSpeed();
@@ -191,6 +170,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
             	deActivatedFromServer = true;
             	mainActivity.generateGameOverDialog("Please try again :)");
             	Log.d(TAG, "ball hit the ground");
+            	new Exception("ball hit the ground");
             }
             //optional ownership parameter "b" means "ball_id"
             String ownershipPara = "";
@@ -216,7 +196,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
             			"&z1=" + ballSpeedToServer(ball1.getYSpeed());
             	int brickToDisappear1 = bricks.checkCollision(ball1, gameViewWidth, gameViewHeight);
             	if (brickToDisappear1 != 0 ) {
-            		pendingBrickId = brickToDisappear1;
+//            		pendingBrickId = brickToDisappear1;
             		sp.play(collideId, 0.5f, 0.5f, 0, 0, 1);
             		brickPara = "&k=" + brickToDisappear1;
             	}
@@ -229,7 +209,7 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
             			"&z2=" + ballSpeedToServer(ball2.getYSpeed());
             	int brickToDisappear2 = bricks.checkCollision(ball2, gameViewWidth, gameViewHeight);
             	if (brickToDisappear2 != 0 ) {
-            		pendingBrickId = brickToDisappear2;
+//            		pendingBrickId = brickToDisappear2;
             		sp.play(collideId, 0.5f, 0.5f, 0, 0, 1);
             		brickPara = "&k=" + brickToDisappear2;
             	}
@@ -256,10 +236,36 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
                 } else {
                 	mainActivity.generateGameOverDialog("You lost :( Try again!");
                 }
-            }  
+            }
+            
+
+        	mainActivity.showRuntimeData();
+            Canvas canvas = null;
+            
+            synchronized(surfaceHolder) {
+                try {
+                    canvas = surfaceHolder.lockCanvas();
+                    if (canvas != null) {
+                        paint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
+                        canvas.drawPaint(paint);
+                        bricks.onDraw(canvas, gameViewWidth, gameViewHeight);
+                        myBar.onDraw(canvas, gameViewWidth, gameViewHeight);
+                        rivalBar.onDraw(canvas, gameViewWidth, gameViewHeight);
+                        ball1.onDraw(canvas, gameViewWidth, gameViewHeight);
+                        ball2.onDraw(canvas, gameViewWidth, gameViewHeight);
+                    }
+                } finally {
+                    if (canvas != null) {
+                        surfaceHolder.unlockCanvasAndPost(canvas);
+                    }
+                }
+            }
+            
         } finally {
         	lock.unlock();
         }
+    	
+        
 	}
     
     private float barXToServer(float myBarX) {
@@ -297,15 +303,16 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
     	    	try {
     	    		Log.d(TAG, response.toString());
     	    		//save scores
-    	    		JSONObject scores = response.getJSONObject("s");
-    	    		if (mapSide.equals("A")) {
-    	    			rData.setMyScore(Integer.valueOf(scores.getString("A")));
-        	    		rData.setRivalScore(Integer.valueOf(scores.getString("B")));
-    	    		} else {
-    	    			rData.setMyScore(Integer.valueOf(scores.getString("B")));
-        	    		rData.setRivalScore(Integer.valueOf(scores.getString("A")));
-    	    		}
-    	    		
+    	    		if (response.has("s")) {
+    	    			JSONObject scores = response.getJSONObject("s");
+        	    		if (mapSide.equals("A")) {
+        	    			rData.setMyScore(Integer.valueOf(scores.getString("A")));
+            	    		rData.setRivalScore(Integer.valueOf(scores.getString("B")));
+        	    		} else {
+        	    			rData.setMyScore(Integer.valueOf(scores.getString("B")));
+            	    		rData.setRivalScore(Integer.valueOf(scores.getString("A")));
+        	    		}
+    	    		}    	    		
     	    		//read bar info
     	    		JSONObject barInfo = response.getJSONObject("b"); // "b" is bar
     	    		String tag = barInfo.getString("r"); //"r" is response
@@ -341,12 +348,12 @@ public class WorldView extends SurfaceView implements SurfaceHolder.Callback, Ru
     	    		}
     	    		
     	    		//check if brick elimination is ok
-    	    		if (response.has("e")){//"e" is "eliminate"
-    	    			if (response.getString("e").equals("y")) {
-    	    				bricks.setAlive(pendingBrickId, false);
-//        	                Log.d(TAG, "brick no. " + pendingBrickId + " was eliminated by " + myName);
-    	    			}
-    	    		}
+//    	    		if (response.has("e")){//"e" is "eliminate"
+//    	    			if (response.getString("e").equals("y")) {
+//    	    				bricks.setAlive(pendingBrickId, false);
+////        	                Log.d(TAG, "brick no. " + pendingBrickId + " was eliminated by " + myName);
+//    	    			}
+//    	    		}
     	    		
     	    		// finally read ball info
     	    		if (response.has("l")){ //"l" is for ball

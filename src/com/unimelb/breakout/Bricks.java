@@ -94,7 +94,7 @@ public class Bricks implements Serializable {
                         (int) ((ballx + Constants.BALL_RADIUS_FACTOR) * screenWidth), 
                         (int) ((bally + Constants.BALL_RADIUS_FACTOR) * screenHeight))) {
 //                    brick.setAlive(false);
-                    
+                	setAlive(brick.getId(), false);
                     //TODO!!!!!!!!!!!!!!!!!
 //                    if (brick.isSpecial()) {
 //                        onPlayData.setScore(200);

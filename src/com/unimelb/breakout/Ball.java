@@ -132,8 +132,9 @@ public class Ball implements Serializable {
     		ballXSpeed = Math.abs(ballXSpeed);
     	}
 		
-    	if (ballY < Constants.BALL_RADIUS_FACTOR) {//bounce off up edge
-    	    ballY = Constants.BALL_RADIUS_FACTOR;
+//    	if (ballY < Constants.BALL_RADIUS_FACTOR) {//bounce off up edge
+		if (ballY - Constants.BALL_RADIUS_FACTOR < Constants.OPPOSITE_BAR_Y_FACTOR + Constants.BAR_HEIGHT_FACTOR) {
+    	    ballY = Constants.BALL_RADIUS_FACTOR + Constants.OPPOSITE_BAR_Y_FACTOR + Constants.BAR_HEIGHT_FACTOR;
     	    ballYSpeed = -ballYSpeed;
     	} else if (ballY > 1 - Constants.BALL_RADIUS_FACTOR){ // reach bottom edge
     	    ballY = 1 - Constants.BALL_RADIUS_FACTOR;
@@ -148,10 +149,12 @@ public class Ball implements Serializable {
 			return;
 		else {
 			float upperLine = myBar.getBarY();
+			float lowerLine = upperLine + Constants.BAR_HEIGHT_FACTOR;
 			float leftLine = myBar.getBarX();
 			float rightLine = myBar.getBarX() + Constants.BAR_LENGTH_FACTOR;
 			
-			if (ballY + Constants.BALL_RADIUS_FACTOR >= upperLine && ballY < upperLine) { //ball hits bar
+			//if (ballY + Constants.BALL_RADIUS_FACTOR >= upperLine && ballY < upperLine) {
+			if (ballY + Constants.BALL_RADIUS_FACTOR >= upperLine && ballY + Constants.BALL_RADIUS_FACTOR <= lowerLine) { //ball hits bar
 			    if(ballX >= leftLine && ballX <= rightLine) { //hitting the top of the bar
 			        ballY = upperLine - Constants.BALL_RADIUS_FACTOR;
 			        ballYSpeed = -ballYSpeed;

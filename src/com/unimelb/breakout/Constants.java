@@ -14,8 +14,9 @@ public class Constants {
 	/**
 	 * 
 	 */
-	public static String SEVER_URL = "http://letsbreakout.comxa.com/apiV4.php";
-//	public static String SEVER_URL = "http://192.168.0.4/apiV4.php";
+//	public static String SEVER_URL = "http://192.168.1.102/xampp/algorithm/apiV5.php";
+//	public static String SEVER_URL = "http://192.168.1.103/apiV6.php";
+	public static String SEVER_URL = "http://192.168.0.4/apiV6.php";
 	
 	/**
 	 * Timing in milliseconds
@@ -25,7 +26,7 @@ public class Constants {
 	public static final int TRANSFER_TIMEOUT = 6000;
 	public static final int GAME_COUNTDOWN = 5000;
 	public static final int COUNTDOWN_INTERVAL = 1000;
-	public static final int GAME_THREAD_SLEEP = 60;
+	public static final int GAME_THREAD_SLEEP = 45;
 	
 	/**
 	 * Counts for game-thread-sleep rounds for sending network requests to update game dynamics
@@ -37,7 +38,7 @@ public class Constants {
 	/**
 	 *  actual ballRadius = screenWidth * BALL_RADIUS_FACTOR
 	 */
-	public static final float BALL_RADIUS_FACTOR = 0.015f;
+	public static final float BALL_RADIUS_FACTOR = 0.025f;
 	
 	/**
 	 * The initial position and speed of the balls
@@ -48,15 +49,15 @@ public class Constants {
 	 */
 	public static final float BALL_INIT_X_FACTOR = 0.5f;
 	public static final float BALL_INIT_Y_FACTOR = 0.6f;
-	public static final float BALL_INIT_XSPEED_FACTOR = 0.005f;
-	public static final float BALL_INIT_YSPEED_FACTOR = 0.005f;
+	public static final float BALL_INIT_XSPEED_FACTOR = 0.009f;
+	public static final float BALL_INIT_YSPEED_FACTOR = 0.010f;
 	
 	/**
 	 * 	barLength = screenWidth * BAR_LENGTH_FACTOR
 	 *  barHeight = screenHeight * BAR_HEIGHT_FACTOR
 	 */
     public static final float BAR_LENGTH_FACTOR = 0.7f;
-    public static final float BAR_HEIGHT_FACTOR = 0.02f;
+    public static final float BAR_HEIGHT_FACTOR = 0.03f;
     
     /**
      * The initial position of barX for both self and rival sides
