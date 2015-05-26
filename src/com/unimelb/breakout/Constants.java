@@ -14,7 +14,7 @@ public class Constants {
 	/**
 	 * 
 	 */
-	public static String SEVER_URL = "http://192.168.1.100/xampp/algorithm/apiV6WithAlgorithm.php";
+	public static String SEVER_URL = "http://192.168.1.105/xampp/algorithm/apiV6WithAlgorithm.php";
 //	public static String SEVER_URL = "http://192.168.1.101/apiV6WithAlgorithm.php";
 //	public static String SEVER_URL = "http://192.168.1.101/apiV6.php";
 //	public static String SEVER_URL = "http://192.168.0.4/apiV6.php";
