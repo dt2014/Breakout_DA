@@ -23,6 +23,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+
 public class InitGameAtServerTask extends AsyncTask<RuntimeData, String, Boolean> {
 	private static final String TAG = InitGameAtServerTask.class.getName();
     private volatile RuntimeData rData;
@@ -54,6 +55,7 @@ public class InitGameAtServerTask extends AsyncTask<RuntimeData, String, Boolean
 		BufferedReader in = null;
 		try {
 			publishProgress("Connecting server...");
+
 			String url = Constants.SEVER_URL + "?command=start&n=" + rData.getMyName();
 			URL serverURL = new URL(url);
 			URLConnection urlConnection = serverURL.openConnection();

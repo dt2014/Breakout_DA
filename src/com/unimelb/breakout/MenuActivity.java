@@ -28,7 +28,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-
 public class MenuActivity extends Activity{
     private static final String TAG = MenuActivity.class.getName();
     public static final String PREF = "Breakout_Preferences";

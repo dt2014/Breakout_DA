@@ -3,8 +3,8 @@
 // Configuration file for api.php
 
 $config = array(
-			'host'     => 'mysql9.000webhost.com',
-			'dbname'   => 'a7990677_db',
+			'host'     => '127.0.0.1',
+			'dbname'   => 'da',
 			'username' => 'root',
-			'password' => 'comp90020',
+			'password' => '',
 	);

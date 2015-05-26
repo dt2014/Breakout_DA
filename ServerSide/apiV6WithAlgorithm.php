@@ -1,7 +1,137 @@
 <?php
 
+try
+{
+    //require_once 'remoteClient.php';
+    //$client = new RemoteAddress();
+    //$ip = $client->getIpAddress();
+    
+    require_once 'api_config.php';
+
+    // To keep the code clean, I put the API into its own class. Create an
+    // instance of that class and let it handle the request.
+    
+    //start the connection
+    $api = new API($config);
+    $reply = array();
+    
+    $command = $_GET['command'];
+    
+    if($command == "play")
+    {
+        
+        $ball_indicate = 1;
+        
+        // WRITE THE BAR
+        $player_name = $_GET["n"];
+        $bar_position_x = $_GET["x"];
+        $api->updateBarPosition($player_name,$bar_position_x);
+        
+        
+        // Because at a time a player can have two balls, one ball, no ball
+        // IF WRITE THE BALL NUMBER ONE
+        if(isset($_GET["x1"]))
+        {
+            $ball_id = 1;
+            $x1 = $_GET["x1"];
+            $y1 = $_GET["y1"];
+            $w1 = $_GET["w1"];
+            $z1 = $_GET["z1"]; 
+            $api->updateBallPositionAndSpeed($ball_id,$x1,$y1,$w1,$z1);
+            $ball_indicate  = $ball_indicate + 1;
+        }
+        
+        // IF WRITE THE BALL NUMBER TWO
+        if(isset($_GET["x2"]))
+        {
+            $ball_id = 2;
+            $x2 = $_GET["x2"];
+            $y2 = $_GET["y2"];
+            $w2 = $_GET["w2"];
+            $z2 = $_GET["z2"];
+            $api->updateBallPositionAndSpeed($ball_id,$x2,$y2,$w2,$z2);
+            $ball_indicate = $ball_indicate * -1;
+        }
+        
+        // IF USER WANTS TO CHANGE OWNERSHIP
+        if(isset($_GET["b"]))
+        {
+            $ball_id = $_GET["b"];
+            $new_owner_name = $player_name;
+            $api->changeOwnerShip($ball_id,$new_owner_name);
+        }
+        
+        // IF HITTING A BRICK AND WANT TO WRITE VALUE TO PLAYER SCORE
+        if(isset($_GET["k"]))
+        {
+            $brick_id = $_GET["k"];
+            $api->updateScore($brick_id,$player_name);
+            //$reply['e'] = $info;
+
+            // RETURN THE SCORE OF TWO PLAYER( Notice no if statement here)
+            $names = $api->getPlayerNames();
+            $player1_name = $names[0];
+            $player2_name = $names[1];
+            $score = $api->getPlayerScore($player1_name, $player2_name);
+            $reply['s'] = $score;
+        }
+        
+        // RETURN THE BAR OF RIVAL PLAYER
+        $rival_name = $api->getOpponentName($player_name);
+        $bar_position = $api->getBarPosition($rival_name);
+        $reply['b'] = $bar_position;
+        
+        // Based on how many ball the requester have now, we just return the
+        // ball that he doesn't know
+        $about_ball = $api->getRivalBall($ball_indicate);
+        // If it has at least one ball doesnt know
+        if($about_ball)
+        {
+            $reply['l'] = $about_ball;
+        }
+        
+        echo json_encode($reply);
+        
+    }
+    else if($command == "start")
+    {
+        if(isset($_GET["n"]))
+        {
+            $player_name = $_GET["n"];
+            $response = $api->startGame($player_name);
+            echo json_encode($response);
+        }
+    }
+    else if($command == "stop")
+    {
+        if(isset($_GET["n"]))
+        {
+            $player_name = $_GET["n"];
+            $api->stopGame($player_name);
+        }
+    }
+    else if($command == "lose")
+    {
+        if(isset($_GET["n"]))
+        {
+            $player_name = $_GET["n"];
+            $api->loseGame($player_name);
+        }
+    }
+    
+}
+catch (Exception $e)
+{
+        var_dump($e);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+    
+////////////////////////////////////////////////////////////////////////////////
+
 class API
 {
+
 
     private $pdo;
 
@@ -26,31 +156,45 @@ class API
         $stmt = $this->pdo->prepare('SELECT map_side, COUNT(*) AS num FROM Player WHERE player_status = ?;');
         $stmt->execute(array('INACTIVE'));
         $result = $stmt->fetch(PDO::FETCH_OBJ);
-                
+        
+        if($result->num == 0)
+        {
+            return array('response' => 'server is fully loaded');
+        }
+        
         // ACTIVE THE PLAYER ITSELF
         $stmt = $this->pdo->prepare('UPDATE Player SET player_name = ?, player_score = ?,bar_position_x = ?,  player_status = ?, latest_eliminated_brick_id = ?, lock_type = ?, serving_number = 0, ticket = 0 WHERE map_side = ?;');
         $stmt->execute(array($player_name,'0','0.3','ACTIVE','null','no',$result->map_side));
         
-
+        for ($i = 0; $i < 5; $i++)
+        {
+            $stmt = $this->pdo->prepare('SELECT COUNT(*) AS num FROM Player WHERE player_status = ?;');
+            $stmt->execute(array('ACTIVE'));
+            $active_num = $stmt->fetch(PDO::FETCH_OBJ);
+            // IF TWO GUYS ARE ACTIVE
+            if($active_num->num > 1)
+            {
                 
-        // INITIALISE THE PLAYER BALL
-        $this->initialiseTheBall($player_name,$result->map_side);
+                // INITIALISE THE PLAYER BALL
+                $this->initialiseTheBall($player_name,$result->map_side);
                 
+                $stmt = $this->pdo->prepare('SELECT player_name FROM Player WHERE player_name <> ?;');
+                $stmt->execute(array($player_name));
+                $rival = $stmt->fetch(PDO::FETCH_OBJ);
+                return array('response' => 'start','map_side' => $result->map_side, 'rival_name' => $rival->player_name);
+                
+            }
+            sleep(1);
+        }
+        
+        // IF 5 seconds cannot wait for another player
+        $stmt = $this->pdo->prepare('UPDATE Player SET player_name = ?, player_status = ? WHERE player_name = ?;');
+        $stmt->execute(array('_'.$player_name,'INACTIVE',$player_name));
+        
+        return array('response' => 'No rival');
+        
     }
     
-    function startInfo($player_name){
-
-        $stmt = $this->pdo->prepare('SELECT player_name FROM Player WHERE player_name <> ?;');
-        $stmt->execute(array($player_name));
-        $rival = $stmt->fetch(PDO::FETCH_OBJ);
-
-        $stmt = $this->pdo->prepare('SELECT map_side FROM Player WHERE player_name = ?;');
-        $stmt->execute(array($player_name));
-        $map_side = $stmt->fetch(PDO::FETCH_OBJ);
-
-        return array('response' => 'start','map_side' => $map_side->map_side, 'rival_name' => $rival->player_name);
-    }
-
     function getOwnerOfBall($ball_id)
     {
         $stmt = $this->pdo->prepare('SELECT owner_name FROM Ball WHERE ball_id = ?;');
@@ -95,6 +239,12 @@ class API
     
     function getBallPosition($ball_id)
     {
+
+        $instance = array("field" =>  "ball_id","value" =>  $ball_id);
+        $operation = "read";
+        $table_name = "Ball";
+        $runningInfo = $this->startLampartAlgorithm($operation,$table_name,$instance);
+
         $stmt = $this->pdo->prepare('SELECT ball_position_x, ball_position_y, ball_speed_x,ball_speed_y FROM Ball WHERE ball_id = ?;');
         $stmt->execute(array($ball_id));
         $ball_detail = $stmt->fetch(PDO::FETCH_OBJ);
@@ -104,12 +254,23 @@ class API
                               'w' => $ball_detail->ball_speed_x,
                               'z' => $ball_detail->ball_speed_y
                               );
+
+        $this->exitCriticalSection($instance,$table_name,$runningInfo['ticket_num']);
+
         return $ball_position;
         
     }
 
     function getPlayerScore($player1_name, $player2_name)
     {
+
+        $instance1 = array('field' =>  'player_name','value' =>  "'".$player1_name."'");
+        $instance2 = array('field' =>  'player_name','value' =>  "'".$player2_name."'");
+        $operation = "read";
+        $table_name = "Player";
+        $runningInfo1 = $this->startLampartAlgorithm($operation,$table_name,$instance1);
+        $runningInfo2 = $this->startLampartAlgorithm($operation,$table_name,$instance2);
+
         $stmt = $this->pdo->prepare('SELECT player_score  as score FROM Player WHERE player_name = ?;');
         $stmt->execute(array($player1_name));
         $score1 = $stmt->fetch(PDO::FETCH_OBJ);
@@ -120,6 +281,9 @@ class API
         
         $score = array('A' => $score1->score,'B' => $score2->score);
         
+        $this->exitCriticalSection($instance1,$table_name,$runningInfo1['ticket_num']);
+        $this->exitCriticalSection($instance2,$table_name,$runningInfo2['ticket_num']);
+
         return $score;
     }
     
@@ -141,15 +305,24 @@ class API
             return array('r' => 'w');
         }
         
+        // IF NO BODY IS LOST CONNECTION RUN THE LAMPORT ALGRRITHM
+        $instance = array('field' =>  'player_name','value' =>  "'".$player_name."'");
+        $operation = "read";
+        $table_name = "Player";
+        $runningInfo = $this->startLampartAlgorithm($operation,$table_name,$instance);
+
         $stmt = $this->pdo->prepare('SELECT bar_position_x, latest_eliminated_brick_id FROM Player WHERE player_name = ?;');
         $stmt->execute(array($player_name));
         $result = $stmt->fetch(PDO::FETCH_OBJ);
-        $bar_position = $result->bar_position_x; 
+        $bar_position = $result->bar_position_x;
         $latest_eliminated_brick_id = $result->latest_eliminated_brick_id;
         
         // IF THE RIVAL NOT ELIMINATE A BRICK DURING THIS FRAME
         if($latest_eliminated_brick_id == '0')
         {
+
+            $this->exitCriticalSection($instance,$table_name,$runningInfo['ticket_num']);
+
             // IF THE THE BALL CHANGED OWNERSHIP
             if($this->checkOwnerShipChange($player_name)){
                 $owner1 = $this->getOwnerOfBall(1);
@@ -165,6 +338,8 @@ class API
             $stmt = $this->pdo->prepare('UPDATE Player SET latest_eliminated_brick_id = ? WHERE player_name = ?;');
             $stmt->execute(array('null',$player_name));
             
+            $this->exitCriticalSection($instance,$table_name,$runningInfo['ticket_num']);
+
             // RETURN THE SCORE OF TWO PLAYER( Notice no if statement here)
             $names = $this->getPlayerNames();
             $player1_name = $names[0];
@@ -269,9 +444,16 @@ class API
     
     function updateBallPositionAndSpeed($ball_id,$ball_position_x,$ball_position_y,$ball_speed_x,$ball_speed_y)
     {
+
+        $instance = array('field' =>  'ball_id','value' =>  $ball_id);
+        $operation = "write";
+        $table_name = "Ball";
+        $runningInfo = $this->startLampartAlgorithm($operation,$table_name,$instance);
         
         $stmt = $this->pdo->prepare('UPDATE Ball SET ball_position_x = ?, ball_position_y = ?, ball_speed_x = ?, ball_speed_y = ? WHERE ball_id = ?;');
         $stmt->execute(array($ball_position_x,$ball_position_y,$ball_speed_x,$ball_speed_y,$ball_id));
+
+        $this->exitCriticalSection($instance,$table_name,$runningInfo['ticket_num']);
     }
     
     
@@ -298,20 +480,41 @@ class API
     
     function changeOwnerShip($ball_id,$new_owner_name)
     {
+
+        $instance = array('field' =>  'ball_id','value' =>  $ball_id);
+        $operation = "write";
+        $table_name = "Ball";
+        $runningInfo = $this->startLampartAlgorithm($operation,$table_name,$instance);
         
         $stmt = $this->pdo->prepare('UPDATE Ball SET owner_name = ?, change_mark = ? WHERE ball_id = ?;');
         $stmt->execute(array($new_owner_name,'1',$ball_id));
+
+        $this->exitCriticalSection($instance,$table_name,$runningInfo['ticket_num']);
         
     }
     
     function eliminateBrick($brick_id)
     {
+
+        $instance = array('field' =>  'brick_id','value' =>  $brick_id);
+        $operation = "write";
+        $table_name = "Brick";
+        $runningInfo = $this->startLampartAlgorithm($operation,$table_name,$instance);
+
         $stmt = $this->pdo->prepare('UPDATE Brick SET brick_status = ? WHERE brick_id = ?;');
         $stmt->execute(array('INACTIVE',$brick_id));
+
+        $this->exitCriticalSection($instance,$table_name,$runningInfo['ticket_num']);
     }
     
     function updateScore($brick_id,$player_name)
     {
+
+        $instance = array('field' =>  'player_name','value' => "'".$player_name."'");
+        $operation = "write";
+        $table_name = "Player";
+        $runningInfo = $this->startLampartAlgorithm($operation,$table_name,$instance);
+
         $brick = $this->getBrickInfo($brick_id);
         $status = $brick->brick_status;
         // IF THE BRICK IS ALREADY ELIMINATED
@@ -335,6 +538,9 @@ class API
             // GET THE OTHER PLAYER NAME FIRST
             $opponent_name = $this->getOpponentName($player_name);
             
+            $instance2 = array('field' =>  'player_name','value' => "'".$opponent_name."'");
+            $runningInfo2 = $this->startLampartAlgorithm($operation,$table_name,$instance2);
+
             
             // MINUS THE BRICK VALUE TO THIS PLAYER
             $stmt = $this->pdo->prepare('UPDATE Player SET player_score = player_score - ? WHERE player_name = ?;');
@@ -343,6 +549,8 @@ class API
             // ADD THE BRICK VALUE TO OPPONENT PLAYER
             $stmt = $this->pdo->prepare('UPDATE Player SET player_score = player_score + ? WHERE player_name = ?;');
             $stmt->execute(array($value,$opponent_name));
+
+            $this->exitCriticalSection($instance2,$table_name,$runningInfo['ticket_num']);
             
         }
         // MARK THE LATEST ELIMINATED BRICK
@@ -351,6 +559,9 @@ class API
         
         // DESTROY THE BRICK
         $this->eliminateBrick($brick_id);
+
+        $this->exitCriticalSection($instance,$table_name,$runningInfo['ticket_num']);
+
         return 'y';
     }
                                                  
@@ -362,8 +573,9 @@ class API
     
     function stopGame($player_name)
     {
-        // Initialize the ball
-        $stmt = $this->pdo->prepare("SELECT map_side FROM Player WHERE player_name = ?;");
+
+        //reset the ball's posttion 
+        $stmt = $this->pdo->prepare('SELECT map_side FROM Player WHERE player_name = ?;');
         $stmt->execute(array($player_name));
         $result = $stmt->fetch(PDO::FETCH_OBJ);
         $map_side = $result->map_side;
@@ -378,6 +590,7 @@ class API
         $stmt->execute(array('INACTIVE'));
         $inactive_num = $stmt->fetch(PDO::FETCH_OBJ);
         
+
         // IF ALL PLAYERS STOP
         if($inactive_num->num > 1)
         {
@@ -385,7 +598,6 @@ class API
             $stmt = $this->pdo->prepare("UPDATE Brick SET brick_status = ?, lock_type = 'no', serving_number = ?, ticket = ?;");
             $stmt->execute(array('ACTIVE','0','0'));
         }
-
     }
     
     function loseGame($player_name)
@@ -407,6 +619,129 @@ class API
     
  
     
+    function startLampartAlgorithm($operationType,$table_name,$instance)
+    {
+        
+       
+        $ticket_num = $this->requestEnterCriticalSection($table_name,$instance);
+        
+        $ready = $this->tryEnterCriticalSection($operationType,$instance,$table_name,$ticket_num);
+        
+        return array('ticket_num' => $ticket_num, 'ready' => $ready);
+        //$this->exitCriticalSection($instance,$table_name,$ticket_num);
+        
+    }
+    
+    
+    // INSTANCE IS A DCTIONARY LIKE (player_name:jack) or (ball_id: 1)or (brick_id: abrick_id)
+    function requestEnterCriticalSection($table_name,$instance)
+    {
+
+        
+        // DRAW A TICKET
+        $stmt = $this->pdo->prepare("SELECT ticket FROM " .$table_name. " WHERE " .$instance['field']. " = " .$instance['value']);
+        
+        $stmt->execute();
+        $ticket = $stmt->fetch(PDO::FETCH_OBJ);
+        // INCREASE THE TICKET NUMBER FOR NEXT CLIENT
+        $stmt = $this->pdo->prepare("UPDATE " .$table_name.  " SET ticket = ticket + 1 WHERE " .$instance['field']. " = " .$instance['value']);
+        $stmt->execute();
+        return $ticket->ticket;
+        
+
+    }
+    
+    
+    function tryEnterCriticalSection($operationType,$instance,$table_name,$ticket_num)
+    {
+        for ($i = 0; $i < 5; $i++)
+        {
+            if($this->tryLockCriticalSection($operationType,$instance,$table_name,$ticket_num))
+            {
+                return true; //ready to execute the code
+            }
+            usleep(1000);
+        }
+        
+        return false; //fail to enter the critical section
+    }
+    
+    
+    function tryLockCriticalSection($operationType,$instance,$table_name,$ticket_num)
+    {
+        
+        $stmt = $this->pdo->prepare("SELECT lock_type FROM " .$table_name. " WHERE " .$instance['field']. " = " .$instance['value']);
+        $stmt->execute();
+        $current_lock_type = $stmt->fetch(PDO::FETCH_OBJ)->lock_type;
+        
+        // BASE ON DIFFERENT TYPE OF OPERATION NEEDS DIFFERENT LOCKS
+        
+        if($current_lock_type == 'no')
+        {
+            if($operationType == 'read')
+            {
+                $lock_type = 'shared';
+            }
+            else
+            {
+                $lock_type = 'exclusive';
+            }
+            
+            // Check the service counter is calling who
+            $stmt = $this->pdo->prepare("SELECT serving_number FROM " .$table_name. " WHERE " .$instance['field']. " = " .$instance['value']);
+            $stmt->execute();
+            $serving_number = $stmt->fetch(PDO::FETCH_OBJ)->serving_number;
+
+            // If service counter is is calling you
+            if($serving_number == $ticket_num)
+            {
+                
+                $stmt = $this->pdo->prepare("UPDATE " .$table_name. " SET lock_type = '" .$lock_type. "' WHERE " .$instance['field']. " = " .$instance['value']);
+                $stmt->execute();
+                return true;
+            }
+            // It's not your turn yet
+            else
+            {
+                return false;
+            }
+        }
+        
+        // An exception is :
+        // If it's a shared lock and you want to read you don't need to wait till you get the lock, instead, you directly read
+        if($current_lock_type == 'shared' && $operationType == 'read')
+        {
+
+            //Set the service_number plus one to extend the duration of the lock
+            $stmt = $this->pdo->prepare("UPDATE " .$table_name. " SET serving_number = serving_number + 1 WHERE " .$instance['field']. " = " .$instance['value']);
+            $stmt->execute();
+            return true;
+        }
+        
+        return false;
+    }
+    
+    
+    function exitCriticalSection($instance,$table_name,$ticket_num)
+    {
+
+        $stmt = $this->pdo->prepare("SELECT serving_number FROM " .$table_name. " WHERE " .$instance['field']. " = " .$instance['value']);
+        $stmt->execute();
+        $serving_number = $stmt->fetch(PDO::FETCH_OBJ)->serving_number;
+        
+        /* Why I have to test this but not just directly plus serving_number and free the lock?
+           Because if more than one guys in the shared read lock, if the early thread entered this zone finishes earlier and it add the serving number then free the lock
+           then might make the next trancation like write to access this zone while the other reading guy is not finish. So I have to check the $ticket_num is whether equal
+           to sercing number to determine if this guy is the last guy in parallel reading
+         */
+
+        if($ticket_num == $serving_number)
+        {
+
+            $stmt = $this->pdo->prepare("UPDATE " .$table_name. " SET serving_number = serving_number + 1, lock_type = 'no' WHERE " .$instance['field']. " = " .$instance['value']);
+            $stmt->execute();
+        }
+    }    
     
     
     
